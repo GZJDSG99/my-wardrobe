@@ -1,0 +1,275 @@
+.header {
+  padding-top: 24rpx;
+  padding-bottom: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.meta-row {
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 22rpx;
+}
+
+.streak {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.dot {
+  color: var(--muted-fg);
+}
+
+.weather-strip {
+  margin: 8rpx 40rpx 24rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 32rpx;
+  background: var(--primary-soft);
+  border: 1rpx solid rgba(181, 105, 90, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.weather-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.sun,
+.weather-main {
+  color: var(--primary);
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.weather-hint {
+  flex: 1;
+  text-align: right;
+  font-size: 22rpx;
+  color: rgba(181, 105, 90, 0.7);
+}
+
+.chev {
+  color: rgba(181, 105, 90, 0.55);
+  font-size: 32rpx;
+}
+
+.theme-scroll {
+  margin-bottom: 8rpx;
+  white-space: nowrap;
+}
+
+.theme-row {
+  display: inline-flex;
+  gap: 12rpx;
+  padding-bottom: 8rpx;
+}
+
+.theme-chip {
+  padding: 14rpx 28rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  color: var(--muted-fg);
+  font-size: 24rpx;
+}
+
+.theme-on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.outfit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+  margin-top: 16rpx;
+}
+
+.outfit {
+  overflow: hidden;
+  border-radius: 48rpx;
+}
+
+.cover-wrap {
+  position: relative;
+  height: 420rpx;
+  background: var(--muted);
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cover-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent 55%);
+}
+
+.tag-row {
+  position: absolute;
+  top: 24rpx;
+  left: 28rpx;
+  display: flex;
+  gap: 10rpx;
+}
+
+.img-tag {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 20rpx;
+}
+
+.cover-foot {
+  position: absolute;
+  left: 28rpx;
+  right: 28rpx;
+  bottom: 24rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sub {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 22rpx;
+  margin-bottom: 4rpx;
+}
+
+.title {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.like {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+}
+
+.stamp {
+  position: absolute;
+  right: 28rpx;
+  top: 40%;
+  padding: 10rpx 18rpx;
+  border: 4rpx solid #fff;
+  color: #fff;
+  font-size: 28rpx;
+  transform: rotate(-12deg);
+  background: rgba(181, 105, 90, 0.55);
+}
+
+.body {
+  padding: 28rpx;
+}
+
+.reason {
+  font-size: 26rpx;
+  line-height: 1.55;
+  color: var(--fg);
+  margin-bottom: 20rpx;
+  padding: 20rpx 22rpx;
+  background: var(--secondary);
+  border-radius: 20rpx;
+}
+
+.label-muted {
+  font-size: 20rpx;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+  font-weight: 500;
+  margin-bottom: 14rpx;
+}
+
+.item-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.body-foot {
+  margin-top: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.wear-btn {
+  padding: 16rpx 28rpx;
+  border-radius: 999rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.styles {
+  margin-top: 40rpx;
+  margin-bottom: 24rpx;
+}
+
+.styles-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.h3 {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.more {
+  font-size: 22rpx;
+}
+
+.style-row {
+  display: inline-flex;
+  gap: 20rpx;
+}
+
+.style-card {
+  width: 224rpx;
+}
+
+.style-img {
+  width: 224rpx;
+  height: 288rpx;
+  border-radius: 32rpx;
+  background: var(--muted);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.style-label {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 500;
+}

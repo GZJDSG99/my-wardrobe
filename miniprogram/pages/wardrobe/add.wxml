@@ -1,0 +1,81 @@
+<view class="page">
+  <view class="photo card" bindtap="onChooseImage">
+    <image wx:if="{{tempPath}}" class="preview" src="{{tempPath}}" mode="aspectFill" />
+    <view wx:else class="photo-empty">
+      <text class="cam">📷</text>
+      <text class="photo-text">拍照或从相册选择</text>
+      <text class="photo-sub muted">建议纯色背景，衣物平铺或悬挂</text>
+    </view>
+    <view wx:if="{{tempPath}}" class="photo-tip">点击可更换</view>
+  </view>
+
+  <view class="form section-pad">
+    <view class="field">
+      <view class="label">名称</view>
+      <input
+        class="input"
+        placeholder="例如：米白针织"
+        value="{{name}}"
+        maxlength="20"
+        bindinput="onInputName"
+      />
+    </view>
+
+    <view class="field">
+      <view class="label">品牌（可选）</view>
+      <input
+        class="input"
+        placeholder="例如：Uniqlo"
+        value="{{brand}}"
+        maxlength="30"
+        bindinput="onInputBrand"
+      />
+    </view>
+
+    <view class="field">
+      <view class="label">品类</view>
+      <view class="chips">
+        <view
+          wx:for="{{categories}}"
+          wx:key="id"
+          class="chip {{category === item.id ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onPickCategory"
+        >{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label">颜色</view>
+      <view class="chips">
+        <view
+          wx:for="{{colors}}"
+          wx:key="value"
+          class="color-chip {{colorIndex === index ? 'color-on' : ''}}"
+          data-index="{{index}}"
+          bindtap="onPickColor"
+        >
+          <view class="swatch" style="background: {{item.value}};"></view>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label">季节</view>
+      <view class="chips">
+        <view
+          wx:for="{{seasons}}"
+          wx:key="id"
+          class="chip {{item.on ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onToggleSeason"
+        >{{item.id}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer section-pad">
+    <button class="save" loading="{{saving}}" bindtap="onSave">保存入库</button>
+  </view>
+</view>

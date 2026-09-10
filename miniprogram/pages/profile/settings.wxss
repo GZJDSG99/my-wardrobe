@@ -1,0 +1,84 @@
+@import "./sub.wxss";
+
+.block-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  margin: 24rpx 0 16rpx;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.chip {
+  padding: 14rpx 26rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  color: var(--muted-fg);
+  font-size: 24rpx;
+}
+
+.chip.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.tip {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.account {
+  padding: 28rpx;
+  border-radius: 24rpx;
+}
+
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 26rpx;
+}
+
+.block {
+  width: 100%;
+}
+
+.ghost-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  color: var(--primary);
+  font-size: 26rpx;
+}
+
+.menu {
+  margin: 32rpx 40rpx;
+  overflow: hidden;
+  border-radius: 24rpx;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 28rpx;
+  border-bottom: 1rpx solid var(--border);
+  font-size: 28rpx;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.chev {
+  font-size: 32rpx;
+}

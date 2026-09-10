@@ -1,0 +1,63 @@
+<view class="page">
+  <view class="hero">
+    <view class="profile-row">
+      <view class="avatar-wrap" bindtap="onEditProfile">
+        <image wx:if="{{hasAvatar}}" class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <view wx:else class="avatar avatar-fallback font-display">{{name[0] || '衣'}}</view>
+        <view class="edit">✎</view>
+      </view>
+      <view class="info" bindtap="onEditProfile">
+        <view class="name font-display">{{name}}</view>
+        <view class="styles muted">{{styles}}</view>
+        <view class="streak-line primary">连续出门 {{streak}} 天</view>
+        <view wx:if="{{loggedIn}}" class="login-state muted">已登录 · {{openidMask}}</view>
+        <view wx:else class="login-state muted">未登录 · 点击登录同步云端数据</view>
+      </view>
+      <view class="icon-btn" bindtap="onOpenSettings">⚙</view>
+    </view>
+
+    <view wx:if="{{!loggedIn}}" class="login-bar">
+      <button class="login-btn" loading="{{logging}}" bindtap="onLogin">微信授权登录</button>
+    </view>
+
+    <view class="stats card">
+      <view wx:for="{{stats}}" wx:key="label" class="stat">
+        <view class="stat-val font-display">{{item.value}}</view>
+        <view class="stat-label muted">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-pad">
+    <view class="block-title">衣橱健康度</view>
+    <view class="card health">
+      <view class="health-top">
+        <text>综合评分</text>
+        <text class="primary score">{{health}} 分</text>
+      </view>
+      <view class="bar">
+        <view class="bar-fill" style="width: {{health}}%;"></view>
+      </view>
+      <view class="health-tip muted">{{healthTip}}</view>
+    </view>
+  </view>
+
+  <view class="section-pad menu-wrap">
+    <view class="card menu">
+      <view
+        wx:for="{{menus}}"
+        wx:key="id"
+        class="menu-item"
+        data-url="{{item.url}}"
+        bindtap="onMenu"
+      >
+        <view class="menu-icon">{{item.icon}}</view>
+        <view class="menu-text">
+          <view class="menu-label">{{item.label}}</view>
+          <view class="menu-sub muted">{{item.sub}}</view>
+        </view>
+        <text class="chev muted">›</text>
+      </view>
+    </view>
+  </view>
+</view>

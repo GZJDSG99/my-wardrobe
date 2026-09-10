@@ -1,0 +1,35 @@
+.page-sub {
+  min-height: 100vh;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+.empty {
+  padding: 100rpx 40rpx;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 40rpx;
+  margin-bottom: 12rpx;
+}
+
+.empty-sub {
+  font-size: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.primary-btn {
+  display: inline-block;
+  padding: 0 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 999rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 26rpx;
+}
+
+.list {
+  padding-bottom: 24rpx;
+}

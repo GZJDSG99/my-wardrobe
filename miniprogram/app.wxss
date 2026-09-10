@@ -1,0 +1,122 @@
+/** Figma Make 衣橱管理 — theme tokens（叠加业务功能） */
+page {
+  --bg: #faf7f4;
+  --fg: #1c1917;
+  --card: #ffffff;
+  --primary: #b5695a;
+  --primary-soft: rgba(181, 105, 90, 0.12);
+  --secondary: #f5e8e4;
+  --muted: #ede9e5;
+  --muted-fg: #8c7b75;
+  --accent: #c9897a;
+  --border: rgba(28, 25, 23, 0.08);
+  --radius: 32rpx;
+  --radius-lg: 48rpx;
+  --font-display: "Playfair Display", "Songti SC", serif;
+  --font-body: "DM Sans", "PingFang SC", "Helvetica Neue", sans-serif;
+
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 28rpx;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+view,
+text,
+button,
+image,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  line-height: inherit;
+  font-weight: inherit;
+}
+
+button::after {
+  border: none;
+}
+
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.muted {
+  color: var(--muted-fg);
+}
+
+.primary {
+  color: var(--primary);
+}
+
+.card {
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4rpx 16rpx rgba(28, 25, 23, 0.04);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  background: var(--secondary);
+  color: var(--fg);
+}
+
+.icon-btn {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--fg);
+  box-shadow: 0 2rpx 8rpx rgba(28, 25, 23, 0.04);
+}
+
+.icon-btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.section-pad {
+  padding-left: 40rpx;
+  padding-right: 40rpx;
+}
+
+.eyebrow {
+  font-size: 22rpx;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+  font-weight: 500;
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-size: 48rpx;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 4rpx;
+}

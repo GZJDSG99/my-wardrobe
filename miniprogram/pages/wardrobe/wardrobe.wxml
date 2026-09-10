@@ -1,0 +1,63 @@
+<view class="page">
+  <view class="header section-pad">
+    <view>
+      <view class="eyebrow">我的衣橱</view>
+      <view class="h1">{{total}} 件单品</view>
+    </view>
+    <view class="header-actions">
+      <view class="icon-btn icon-btn-primary" bindtap="onAdd">＋</view>
+    </view>
+  </view>
+
+  <view class="hint muted section-pad">
+    {{loading ? '同步云端衣橱…' : (fromCloud ? '数据已存云开发，可继续拍照入库。' : '云端暂不可用，点击右上角仍可尝试添加入库。')}}
+  </view>
+
+  <scroll-view scroll-x class="cats section-pad" enhanced show-scrollbar="{{false}}">
+    <view class="cat-row">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="cat {{activeCategory === item.id ? 'cat-on' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onCategory"
+      >
+        {{item.label}}
+        <text class="count">{{item.count}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{!loading && filtered.length === 0}}" class="empty section-pad">
+    <view class="empty-title font-display">还没有衣物</view>
+    <view class="empty-sub muted">拍一张衣服照片，填好品类就能入库。</view>
+    <button class="empty-btn" bindtap="onAdd">添加第一件</button>
+  </view>
+
+  <view wx:else class="grid section-pad">
+    <view wx:for="{{filtered}}" wx:key="id" class="item card">
+      <view class="thumb-wrap">
+        <image
+          wx:if="{{item.image}}"
+          class="thumb"
+          src="{{item.image}}"
+          mode="aspectFill"
+          lazy-load
+        />
+        <view wx:else class="thumb tone-fallback" style="background: {{item.color}};"></view>
+        <view class="dot" style="background: {{item.color}};"></view>
+        <view class="flag {{item.real ? 'flag-real' : ''}}">{{item.real ? '柜中' : '模板'}}</view>
+      </view>
+      <view class="meta">
+        <view class="brand muted">{{item.brand}}</view>
+        <view class="name">{{item.name}}</view>
+        <view class="worn muted">已穿 {{item.worn}} 次</view>
+      </view>
+    </view>
+
+    <view class="add card" bindtap="onAdd">
+      <text class="cam">📷</text>
+      <text class="add-text">添加单品</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,102 @@
+@import "./sub.wxss";
+
+.week,
+.composer,
+.checkin {
+  margin: 24rpx 40rpx 0;
+  padding: 28rpx;
+}
+
+.small {
+  font-size: 22rpx;
+}
+
+.week-name {
+  margin-top: 8rpx;
+  font-size: 40rpx;
+}
+
+.link-btn {
+  margin-top: 16rpx;
+  display: inline-block;
+  padding: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 24rpx;
+  text-align: left;
+}
+
+.label {
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 140rpx;
+  padding: 20rpx;
+  background: var(--secondary);
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  box-sizing: border-box;
+}
+
+.moods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 16rpx 0 20rpx;
+}
+
+.mood {
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  color: var(--muted-fg);
+  font-size: 22rpx;
+}
+
+.mood-on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.block {
+  width: 100%;
+}
+
+.block-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  margin: 28rpx 0 16rpx;
+}
+
+.checkin-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+  font-size: 22rpx;
+}
+
+.checkin-text {
+  font-size: 28rpx;
+  line-height: 1.45;
+}
+
+.fav {
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+}
+
+.ghost-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 999rpx;
+  background: var(--card);
+  border: 1rpx solid var(--border);
+  color: var(--primary);
+  font-size: 26rpx;
+}

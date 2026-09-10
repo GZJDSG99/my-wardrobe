@@ -1,0 +1,38 @@
+@import "./sub.wxss";
+
+.hero-card,
+.plan {
+  margin: 24rpx 40rpx 0;
+  padding: 28rpx;
+}
+
+.title {
+  font-size: 40rpx;
+}
+
+.sub {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.plan-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16rpx;
+}
+
+.plan-name {
+  font-size: 34rpx;
+}
+
+.feat {
+  font-size: 24rpx;
+  margin-bottom: 8rpx;
+}
+
+.block {
+  width: 100%;
+  margin-top: 20rpx;
+}

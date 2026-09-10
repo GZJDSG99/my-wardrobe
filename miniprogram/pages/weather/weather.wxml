@@ -1,0 +1,86 @@
+<view class="page">
+  <view wx:if="{{error && loading === false && temp === '--'}}" class="error-box section-pad">
+    <text class="error-text">{{error}}</text>
+    <button class="retry" bindtap="onRetry">重试</button>
+  </view>
+
+  <view class="hero">
+    <view class="hero-deco">{{emoji}}</view>
+    <view class="hero-top">
+      <view class="hero-city muted-light">{{city}} · {{date}}{{fromLocation ? ' · 定位' : ''}}</view>
+      <view class="locate-btn {{locating ? 'locate-busy' : ''}}" bindtap="onLocate">
+        {{locating ? '定位中' : '定位'}}
+      </view>
+    </view>
+    <view class="hero-temp-row">
+      <text class="hero-temp">{{temp}}</text>
+      <text class="hero-unit">°C</text>
+    </view>
+    <view class="hero-cond-row">
+      <text class="hero-emoji">{{emoji}}</text>
+      <view class="hero-cond font-display">{{condition}}</view>
+    </view>
+    <view class="hero-metrics">
+      <view class="metric">
+        <text class="metric-label">湿度</text>
+        <text class="metric-val">{{humidity}}%</text>
+      </view>
+      <view class="metric">
+        <text class="metric-label">风况</text>
+        <text class="metric-val">{{wind}}</text>
+      </view>
+      <view class="metric">
+        <text class="metric-label">紫外线</text>
+        <text class="metric-val">{{uv}}</text>
+      </view>
+    </view>
+    <view wx:if="{{loading}}" class="loading-tag">更新中…</view>
+  </view>
+
+  <view class="section-pad actions">
+    <view class="city-label muted">切换城市</view>
+    <view class="city-row">
+      <view
+        wx:for="{{cityOptions}}"
+        wx:key="query"
+        class="city-chip {{city === item.name ? 'city-on' : ''}}"
+        data-query="{{item.query}}"
+        data-name="{{item.name}}"
+        bindtap="onPickCity"
+      >{{item.name}}</view>
+    </view>
+    <button wx:if="{{fromLocation}}" class="reset-btn" bindtap="onResetHangzhou">切回杭州</button>
+  </view>
+
+  <view class="section-pad block">
+    <view class="block-title">七日预报</view>
+    <view class="card forecast">
+      <view wx:for="{{forecast}}" wx:key="date" class="row">
+        <text class="day">{{item.day}}</text>
+        <text class="cond muted">{{item.cond}}</text>
+        <text class="ico">{{item.icon}}</text>
+        <text class="high">{{item.high}}°</text>
+        <text class="low muted">{{item.low}}°</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-pad block">
+    <view class="block-title">今日详情</view>
+    <view class="card details">
+      <view wx:for="{{details}}" wx:key="label" class="detail-item">
+        <text class="detail-label muted">{{item.label}}</text>
+        <text class="detail-val">{{item.val}}</text>
+      </view>
+    </view>
+    <view class="plan-note muted">点「定位」可按当前位置更新天气；数据来自 Open-Meteo。</view>
+  </view>
+
+  <view class="section-pad tip-card">
+    <view class="tip-title">✦ {{suggestion}}</view>
+    <view class="tip-pills">
+      <text wx:for="{{tips}}" wx:key="*this" class="tip-pill">{{item}}</text>
+    </view>
+    <button class="gen-btn" bindtap="onGenerate">生成今日穿搭</button>
+  </view>
+</view>

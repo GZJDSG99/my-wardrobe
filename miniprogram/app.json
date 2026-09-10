@@ -1,0 +1,59 @@
+{
+  "pages": [
+    "pages/recommend/recommend",
+    "pages/wardrobe/wardrobe",
+    "pages/wardrobe/add",
+    "pages/weather/weather",
+    "pages/profile/profile",
+    "pages/profile/history",
+    "pages/profile/care",
+    "pages/profile/inspire",
+    "pages/profile/pref",
+    "pages/profile/vip",
+    "pages/profile/settings"
+  ],
+  "window": {
+    "navigationBarTitleText": "衣橱",
+    "navigationBarBackgroundColor": "#FAF7F4",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FAF7F4",
+    "backgroundTextStyle": "dark"
+  },
+  "cloud": true,
+  "__usePrivacyCheck__": true,
+  "permission": {
+    "scope.userFuzzyLocation": {
+      "desc": "用于获取你所在城市的天气与穿搭建议"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getFuzzyLocation"
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#8C7B75",
+    "selectedColor": "#B5695A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/recommend/recommend",
+        "text": "推荐"
+      },
+      {
+        "pagePath": "pages/wardrobe/wardrobe",
+        "text": "衣物"
+      },
+      {
+        "pagePath": "pages/weather/weather",
+        "text": "天气"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
