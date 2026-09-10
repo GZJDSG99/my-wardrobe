@@ -1,4 +1,10 @@
 <view class="page page-sub">
+  <view class="section-pad brand-block">
+    <view class="brand-name font-display">Dresia</view>
+    <view class="brand-en">Open Your Closet. Discover Your Style.</view>
+    <view class="brand-zh muted">打开衣橱，发现更多风格</view>
+  </view>
+
   <view class="section-pad">
     <view class="block-title">账号</view>
     <view class="account card">

@@ -93,6 +93,10 @@ function logoutLocal() {
     wx.removeStorageSync(OPENID_KEY);
     wx.removeStorageSync(LOGIN_AT_KEY);
   } catch (e) {}
+  try {
+    const { clearLocalIdentity } = require("./user.js");
+    clearLocalIdentity();
+  } catch (e) {}
   const app = getApp();
   if (app && app.globalData) {
     app.globalData.openid = "";

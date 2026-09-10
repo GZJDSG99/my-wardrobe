@@ -32,10 +32,17 @@ App({
 
   silentLogin() {
     try {
-      const { ensureLogin } = require("./utils/auth.js");
-      ensureLogin(false).catch((err) => {
-        console.warn("静默登录失败", err && err.message);
-      });
+      const { ensureLogin, isLoggedIn } = require("./utils/auth.js");
+      // 仅刷新已有登录态；未登录需用户主动点登录，衣橱才可见
+      if (!isLoggedIn()) return;
+      ensureLogin(false)
+        .then(() => {
+          const { syncProfileFromCloud } = require("./utils/user.js");
+          return syncProfileFromCloud();
+        })
+        .catch((err) => {
+          console.warn("静默登录失败", err && err.message);
+        });
     } catch (e) {}
   },
 

@@ -1,4 +1,5 @@
 const { listClothes } = require("../../utils/clothes.js");
+const { isLoggedIn } = require("../../utils/auth.js");
 
 Page({
   data: {
@@ -12,6 +13,22 @@ Page({
 
   load() {
     this.setData({ loading: true });
+
+    if (!isLoggedIn()) {
+      this.setData({
+        loading: false,
+        tasks: [
+          {
+            id: "login",
+            due: "现在",
+            title: "登录后查看护理建议",
+            detail: "护理提醒基于你的云端衣橱生成。",
+          },
+        ],
+      });
+      return;
+    }
+
     listClothes()
       .then((clothes) => {
         const tasks = [];

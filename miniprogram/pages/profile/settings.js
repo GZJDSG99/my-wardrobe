@@ -1,6 +1,8 @@
 const {
   getProfile,
   saveProfile,
+  syncProfileFromCloud,
+  pushProfileToCloud,
   CITY_OPTIONS,
 } = require("../../utils/user.js");
 const {
@@ -35,6 +37,7 @@ Page({
     if (this.data.logging) return;
     this.setData({ logging: true });
     ensureLogin(true)
+      .then(() => syncProfileFromCloud())
       .then(() => {
         this.setData({
           logging: false,
@@ -70,6 +73,7 @@ Page({
     const query = e.currentTarget.dataset.query;
     const name = e.currentTarget.dataset.name;
     saveProfile({ cityQuery: query, cityName: name });
+    if (isLoggedIn()) pushProfileToCloud(getProfile());
     const app = getApp();
     app.globalData.cityQuery = query;
     app.globalData.city = name;
@@ -114,9 +118,9 @@ Page({
 
   onAbout() {
     wx.showModal({
-      title: "关于衣橱",
+      title: "Dresia",
       content:
-        "今日穿搭操作系统 · UI 基于 Figma Make 衣橱管理设计 · 天气 Open-Meteo · 数据云开发",
+        "Open Your Closet. Discover Your Style.\n打开衣橱，发现更多风格\n\n今日穿搭操作系统 · 天气 Open-Meteo · 数据云开发",
       showCancel: false,
     });
   },

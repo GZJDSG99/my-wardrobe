@@ -9,10 +9,9 @@
     </view>
   </view>
 
-  <view class="hint muted section-pad">
-    {{loading ? '同步云端衣橱…' : (fromCloud ? '数据已存云开发，可继续拍照入库。' : '云端暂不可用，点击右上角仍可尝试添加入库。')}}
-  </view>
+  <view class="hint muted section-pad">{{hintText}}</view>
 
+  <block wx:if="{{loggedIn}}">
   <scroll-view scroll-x class="cats section-pad" enhanced show-scrollbar="{{false}}">
     <view class="cat-row">
       <view
@@ -34,8 +33,14 @@
     <button class="empty-btn" bindtap="onAdd">添加第一件</button>
   </view>
 
-  <view wx:else class="grid section-pad">
-    <view wx:for="{{filtered}}" wx:key="id" class="item card">
+  <view wx:elif="{{!loading}}" class="grid section-pad">
+    <view
+      wx:for="{{filtered}}"
+      wx:key="id"
+      class="item card"
+      data-id="{{item.id}}"
+      bindtap="onEdit"
+    >
       <view class="thumb-wrap">
         <image
           wx:if="{{item.image}}"
@@ -46,7 +51,7 @@
         />
         <view wx:else class="thumb tone-fallback" style="background: {{item.color}};"></view>
         <view class="dot" style="background: {{item.color}};"></view>
-        <view class="flag {{item.real ? 'flag-real' : ''}}">{{item.real ? '柜中' : '模板'}}</view>
+        <view class="flag flag-real">柜中</view>
       </view>
       <view class="meta">
         <view class="brand muted">{{item.brand}}</view>
@@ -59,5 +64,12 @@
       <text class="cam">📷</text>
       <text class="add-text">添加单品</text>
     </view>
+  </view>
+  </block>
+
+  <view wx:else class="empty section-pad">
+    <view class="empty-title font-display">登录后查看衣橱</view>
+    <view class="empty-sub muted">衣物按微信账号隔离，登录后同步云端数据。</view>
+    <button class="empty-btn" loading="{{logging}}" bindtap="onLogin">微信授权登录</button>
   </view>
 </view>

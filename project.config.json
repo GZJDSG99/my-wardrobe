@@ -1,5 +1,5 @@
 {
-  "description": "电子衣橱 · Hangtag Morning",
+  "description": "Dresia · Open Your Closet. Discover Your Style.",
   "packOptions": {
     "ignore": [],
     "include": []
@@ -47,7 +47,7 @@
   "compileType": "miniprogram",
   "libVersion": "3.5.5",
   "appid": "wxb34d79954379f82b",
-  "projectname": "my-wardrobe",
+  "projectname": "Dresia",
   "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",

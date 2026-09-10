@@ -1,6 +1,6 @@
 const {
   getProfile,
-  saveProfile,
+  saveProfileAndSync,
   STYLE_OPTIONS,
   SCENE_OPTIONS,
 } = require("../../utils/user.js");
@@ -13,6 +13,7 @@ Page({
     scenes: [],
     styleOptions: [],
     sceneOptions: [],
+    saving: false,
   },
 
   onLoad() {
@@ -65,14 +66,37 @@ Page({
   },
 
   onSave() {
-    const nickName = (this.data.nickName || "").trim() || "衣橱用户";
-    saveProfile({
+    if (this.data.saving) return;
+    const nickName = (this.data.nickName || "").trim();
+    if (!this.data.avatarUrl) {
+      wx.showToast({ title: "请先选择头像", icon: "none" });
+      return;
+    }
+    if (!nickName) {
+      wx.showToast({ title: "请填写昵称", icon: "none" });
+      return;
+    }
+
+    this.setData({ saving: true });
+    wx.showLoading({ title: "保存中", mask: true });
+
+    saveProfileAndSync({
       nickName,
       avatarUrl: this.data.avatarUrl,
       styles: this.data.styles.slice(0, 4),
       scenes: this.data.scenes.slice(0, 4),
-    });
-    wx.showToast({ title: "已保存", icon: "success" });
-    setTimeout(() => wx.navigateBack(), 400);
+      profileDone: true,
+    })
+      .then(() => {
+        wx.hideLoading();
+        this.setData({ saving: false });
+        wx.showToast({ title: "已保存", icon: "success" });
+        setTimeout(() => wx.navigateBack(), 400);
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        this.setData({ saving: false });
+        wx.showToast({ title: (err && err.message) || "保存失败", icon: "none" });
+      });
   },
 });

@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/recommend/recommend",
+    "pages/recommend/custom",
     "pages/wardrobe/wardrobe",
     "pages/wardrobe/add",
     "pages/weather/weather",
@@ -13,7 +14,7 @@
     "pages/profile/settings"
   ],
   "window": {
-    "navigationBarTitleText": "衣橱",
+    "navigationBarTitleText": "Dresia",
     "navigationBarBackgroundColor": "#FAF7F4",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#FAF7F4",

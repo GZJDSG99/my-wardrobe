@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(280rpx + env(safe-area-inset-bottom));
   background: var(--bg);
 }
 
@@ -131,6 +131,13 @@
   padding-top: 16rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--bg) 70%, rgba(250, 247, 244, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.tip {
+  padding-top: 40rpx;
 }
 
 .save {
@@ -142,4 +149,15 @@
   color: #fff;
   font-size: 30rpx;
   font-weight: 500;
+}
+
+.danger {
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 24rpx;
+  background: transparent;
+  color: #b5695a;
+  font-size: 28rpx;
+  border: 1rpx solid rgba(181, 105, 90, 0.45);
 }

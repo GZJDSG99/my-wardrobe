@@ -1,12 +1,14 @@
 <view class="page">
   <view class="header section-pad">
     <view class="header-main">
-      <view class="eyebrow">{{dateLabel}}</view>
-      <view class="h1">今日穿搭</view>
+      <view class="brand font-display">Dresia</view>
+      <view class="brand-en">Open Your Closet. Discover Your Style.</view>
+      <view class="brand-zh muted">打开衣橱，发现更多风格</view>
+      <view class="page-title">今日穿搭</view>
       <view class="meta-row">
         <text class="streak">连续出门 {{streak}} 天</text>
         <text class="dot">·</text>
-        <text class="muted" bindtap="onGoWardrobe">真实单品 {{realRatio}}</text>
+        <text class="muted" bindtap="onGoWardrobe">衣橱 {{realRatio}} 件</text>
       </view>
     </view>
     <view class="header-actions">
@@ -36,13 +38,53 @@
     </view>
   </scroll-view>
 
-  <view class="outfit-list section-pad">
+  <view wx:if="{{loggedIn}}" class="custom-bar section-pad">
+    <button class="custom-btn" bindtap="onCustom">＋ 自定义搭配</button>
+  </view>
+
+  <view wx:if="{{loadingRec}}" class="muted section-pad" style="padding-top: 8rpx;">正在根据天气与衣橱生成推荐…</view>
+
+  <view wx:elif="{{empty}}" class="empty-rec section-pad">
+    <view class="empty-title font-display">{{emptyTip}}</view>
+    <view class="empty-sub muted">{{emptySub}}</view>
+    <button wx:if="{{!loggedIn}}" class="empty-btn" bindtap="onGoLogin">去登录</button>
+    <view wx:else class="empty-actions">
+      <button class="empty-btn" bindtap="onGoWardrobe">去衣橱添加</button>
+      <button class="empty-btn ghost" bindtap="onCustom">自定义搭配</button>
+    </view>
+  </view>
+
+  <view wx:else class="outfit-list section-pad">
     <view wx:for="{{outfits}}" wx:key="id" class="outfit card">
       <view class="cover-wrap">
-        <image class="cover" src="{{item.image}}" mode="aspectFill" lazy-load />
+        <view class="piece-grid">
+          <view
+            wx:for="{{item.pieces}}"
+            wx:for-item="piece"
+            wx:key="id"
+            class="piece-cell"
+          >
+            <image
+              wx:if="{{piece.image}}"
+              class="piece-img"
+              src="{{piece.image}}"
+              mode="aspectFill"
+              lazy-load
+            />
+            <view
+              wx:else
+              class="piece-img piece-fallback"
+              style="background: {{piece.color}};"
+            ></view>
+            <view class="piece-meta">
+              <text class="piece-slot">{{piece.slot}}</text>
+            </view>
+          </view>
+        </view>
         <view class="cover-mask"></view>
         <view class="tag-row">
           <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="img-tag">{{tag}}</text>
+          <text class="img-tag">{{item.realCount}} 件</text>
         </view>
         <view class="cover-foot">
           <view>
@@ -53,16 +95,32 @@
             class="like"
             data-id="{{item.id}}"
             catchtap="onToggleLike"
-          >{{item.liked ? '♥' : '♡'}}</view>
+          >{{item.likeIcon}}</view>
         </view>
-        <view wx:if="{{stampedId === item.id}}" class="stamp font-display">今天穿这套</view>
+        <view wx:if="{{stamped}}" class="stamp font-display">今天穿这套</view>
       </view>
 
       <view class="body">
         <view class="reason">{{item.reason}}</view>
         <view class="label-muted">搭配单品</view>
-        <view class="item-pills">
-          <text wx:for="{{item.items}}" wx:for-item="piece" wx:key="*this" class="pill">{{piece}}</text>
+        <view class="piece-list">
+          <view wx:for="{{item.pieces}}" wx:for-item="piece" wx:key="id" class="piece-row">
+            <image
+              wx:if="{{piece.image}}"
+              class="piece-thumb"
+              src="{{piece.image}}"
+              mode="aspectFill"
+            />
+            <view
+              wx:else
+              class="piece-thumb"
+              style="background: {{piece.color}};"
+            ></view>
+            <view class="piece-info">
+              <text class="piece-name">{{piece.name}}</text>
+              <text class="muted piece-slot-sm">{{piece.slot}}</text>
+            </view>
+          </view>
         </view>
         <view class="body-foot">
           <text class="muted">{{item.temp}} 适用</text>
@@ -70,24 +128,9 @@
             class="wear-btn"
             data-id="{{item.id}}"
             bindtap="onWear"
-          >{{stampedId === item.id ? '已采纳' : '今天穿这套'}}</button>
+          >{{item.wearLabel}}</button>
         </view>
       </view>
     </view>
-  </view>
-
-  <view class="styles section-pad">
-    <view class="styles-head">
-      <text class="h3 font-display">风格灵感</text>
-      <text class="primary more">查看更多</text>
-    </view>
-    <scroll-view scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="style-row">
-        <view wx:for="{{styles}}" wx:key="label" class="style-card">
-          <image class="style-img" src="{{item.img}}" mode="aspectFill" lazy-load />
-          <text class="style-label">{{item.label}}风</text>
-        </view>
-      </view>
-    </scroll-view>
   </view>
 </view>

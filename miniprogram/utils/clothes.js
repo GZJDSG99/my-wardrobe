@@ -150,6 +150,76 @@ function addCloth(payload) {
   });
 }
 
+/** 按 id 读取单件 */
+function getCloth(id) {
+  if (!id) return Promise.reject(new Error("缺少衣物 id"));
+  return ensureCloud().then(() =>
+    getDb()
+      .collection(COLLECTION)
+      .doc(id)
+      .get()
+      .then((res) => {
+        const r = res.data;
+        if (!r) return Promise.reject(new Error("衣物不存在"));
+        const fileId = r.imageFileId || "";
+        return resolveImageUrls(fileId ? [fileId] : []).then((urlMap) => ({
+          id: r._id || id,
+          name: r.name || "",
+          category: r.category || "tops",
+          color: r.color || "#F5E8D8",
+          colorName: r.colorName || "",
+          brand: r.brand || "",
+          season: r.season || [],
+          worn: r.worn || 0,
+          real: r.real !== false,
+          image: urlMap[fileId] || "",
+          imageFileId: fileId,
+        }));
+      })
+  );
+}
+
+/** 更新衣物 */
+function updateCloth(id, payload) {
+  if (!id) return Promise.reject(new Error("缺少衣物 id"));
+  return ensureCloud().then(() => {
+    const db = getDb();
+    const data = {
+      name: payload.name,
+      category: payload.category,
+      color: payload.color || "#F5E8D8",
+      colorName: payload.colorName || "",
+      brand: payload.brand || "",
+      season: payload.season || [],
+      updatedAt: db.serverDate(),
+    };
+    if (payload.imageFileId) data.imageFileId = payload.imageFileId;
+    return db.collection(COLLECTION).doc(id).update({ data });
+  });
+}
+
+/** 删除衣物（并尝试删云存储图） */
+function deleteCloth(id, imageFileId) {
+  if (!id) return Promise.reject(new Error("缺少衣物 id"));
+  return ensureCloud().then(() =>
+    getDb()
+      .collection(COLLECTION)
+      .doc(id)
+      .remove()
+      .then(() => {
+        if (!imageFileId || !wx.cloud.deleteFile) return null;
+        return new Promise((resolve) => {
+          wx.cloud.deleteFile({
+            fileList: [imageFileId],
+            complete() {
+              resolve(null);
+            },
+          });
+        });
+      })
+  );
+}
+
 /** 拉取当前用户衣物列表 */
 function listClothes() {
   return ensureCloud().then(() => {
@@ -164,7 +234,9 @@ function listClothes() {
           name: r.name,
           category: r.category,
           color: r.color || "#F5E8D8",
+          colorName: r.colorName || "",
           brand: r.brand || "未填品牌",
+          season: r.season || [],
           worn: r.worn || 0,
           real: r.real !== false,
           image: urlMap[r.imageFileId] || "",
@@ -211,6 +283,9 @@ module.exports = {
   compressImage,
   uploadClothImage,
   addCloth,
+  getCloth,
+  updateCloth,
+  deleteCloth,
   listClothes,
   buildCategoryStats,
 };

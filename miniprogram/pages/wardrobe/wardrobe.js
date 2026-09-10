@@ -2,10 +2,14 @@ const {
   listClothes,
   buildCategoryStats,
 } = require("../../utils/clothes.js");
+const { isLoggedIn, ensureLogin } = require("../../utils/auth.js");
+const { syncProfileFromCloud } = require("../../utils/user.js");
 
 Page({
   data: {
     loading: true,
+    loggedIn: false,
+    logging: false,
     fromCloud: false,
     total: 0,
     activeCategory: "all",
@@ -21,6 +25,7 @@ Page({
     items: [],
     filtered: [],
     error: "",
+    hintText: "登录后可查看与管理你的云端衣橱。",
   },
 
   onShow() {
@@ -34,8 +39,49 @@ Page({
     this.loadClothes().finally(() => wx.stopPullDownRefresh());
   },
 
+  emptyCategories() {
+    return [
+      { id: "all", label: "全部", count: 0 },
+      { id: "tops", label: "上衣", count: 0 },
+      { id: "pants", label: "裤装", count: 0 },
+      { id: "skirts", label: "裙装", count: 0 },
+      { id: "coats", label: "外套", count: 0 },
+      { id: "shoes", label: "鞋履", count: 0 },
+      { id: "accessories", label: "配饰", count: 0 },
+    ];
+  },
+
+  updateHint(loggedIn, loading, fromCloud) {
+    let hintText = "登录后可查看与管理你的云端衣橱。";
+    if (loggedIn) {
+      if (loading) hintText = "同步云端衣橱…";
+      else if (fromCloud) hintText = "点击单品可编辑或删除。";
+      else hintText = "云端暂不可用，登录后可再试。";
+    }
+    this.setData({ hintText });
+  },
+
   loadClothes() {
-    this.setData({ loading: true, error: "" });
+    const loggedIn = isLoggedIn();
+    if (!loggedIn) {
+      this.setData({
+        loading: false,
+        loggedIn: false,
+        fromCloud: false,
+        items: [],
+        filtered: [],
+        total: 0,
+        categories: this.emptyCategories(),
+        error: "",
+        hintText: "登录后可查看与管理你的云端衣橱。",
+      });
+      const app = getApp();
+      if (app.globalData) app.globalData.realRatio = "0";
+      return Promise.resolve();
+    }
+
+    this.setData({ loading: true, error: "", loggedIn: true });
+    this.updateHint(true, true, false);
     return listClothes()
       .then((items) => {
         const categories = buildCategoryStats(items);
@@ -45,10 +91,11 @@ Page({
           items,
           total: items.length,
           categories,
+          hintText: "点击单品可编辑或删除。",
         });
         this.applyFilter(this.data.activeCategory);
         const app = getApp();
-        app.globalData.realRatio = `${items.length}/6`;
+        app.globalData.realRatio = `${items.length}`;
       })
       .catch((err) => {
         const msg = err.message || "加载失败";
@@ -59,6 +106,8 @@ Page({
           items: [],
           total: 0,
           filtered: [],
+          categories: this.emptyCategories(),
+          hintText: "云端暂不可用，登录后可再试。",
         });
         if (msg.indexOf("COLLECTION_NOT_EXIST") >= 0 || msg.indexOf("not exist") >= 0) {
           wx.showModal({
@@ -68,6 +117,26 @@ Page({
             showCancel: false,
           });
         }
+      });
+  },
+
+  onLogin() {
+    if (this.data.logging) return;
+    this.setData({ logging: true });
+    ensureLogin(true)
+      .then(() => syncProfileFromCloud())
+      .then(() => {
+        this.setData({ logging: false, loggedIn: true });
+        wx.showToast({ title: "登录成功", icon: "success" });
+        return this.loadClothes();
+      })
+      .catch((err) => {
+        this.setData({ logging: false });
+        wx.showModal({
+          title: "登录失败",
+          content: err.message || "请确认已部署云函数 login",
+          showCancel: false,
+        });
       });
   },
 
@@ -84,6 +153,16 @@ Page({
   },
 
   onAdd() {
+    if (!isLoggedIn()) {
+      wx.showToast({ title: "请先登录", icon: "none" });
+      return;
+    }
     wx.navigateTo({ url: "/pages/wardrobe/add" });
+  },
+
+  onEdit(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/wardrobe/add?id=${id}` });
   },
 });

@@ -301,6 +301,7 @@ function fetchForecastByPlace(place) {
       uv: uvLabel(current.uv_index),
       uvIndex: current.uv_index,
       precip,
+      rainy: isRainy(code, precip),
       cloudcover: Math.round(current.cloud_cover || 0),
       pressure: Math.round(current.pressure_msl || 0),
       icon: "",

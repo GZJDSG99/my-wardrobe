@@ -43,6 +43,6 @@
   </view>
 
   <view class="section-pad footer">
-    <button class="primary-btn block" bindtap="onSave">保存偏好</button>
+    <button class="primary-btn block" loading="{{saving}}" bindtap="onSave">保存偏好</button>
   </view>
 </view>

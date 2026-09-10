@@ -1,10 +1,11 @@
-const { listClothes } = require("../../utils/clothes.js");
 const {
   getProfile,
   getWears,
   getFavorites,
   calcHealth,
   getStreak,
+  syncProfileFromCloud,
+  isProfileComplete,
 } = require("../../utils/user.js");
 const {
   ensureLogin,
@@ -12,6 +13,7 @@ const {
   maskOpenId,
   getCachedOpenId,
 } = require("../../utils/auth.js");
+const { listClothes } = require("../../utils/clothes.js");
 
 Page({
   data: {
@@ -104,11 +106,20 @@ Page({
       openidMask: maskOpenId(getCachedOpenId()),
       streak,
       stats: [
-        { label: "衣物", value: "…" },
+        { label: "衣物", value: loggedIn ? "…" : 0 },
         { label: "穿搭", value: wears.length },
         { label: "收藏", value: favs.length },
       ],
     });
+
+    if (!loggedIn) {
+      const health = calcHealth([]);
+      this.setData({
+        health: health.score,
+        healthTip: "登录后可同步衣橱健康度",
+      });
+      return;
+    }
 
     listClothes()
       .then((clothes) => {
@@ -145,14 +156,16 @@ Page({
     if (this.data.logging) return;
     this.setData({ logging: true });
     ensureLogin(true)
-      .then(() => {
+      .then(() => syncProfileFromCloud())
+      .then((profile) => {
         this.setData({ logging: false });
         this.refresh();
         wx.showToast({ title: "登录成功", icon: "success" });
-        // 引导完善头像昵称（微信规范：不再用 getUserProfile 弹窗一键授权）
-        setTimeout(() => {
-          wx.navigateTo({ url: "/pages/profile/pref" });
-        }, 400);
+        if (!isProfileComplete(profile)) {
+          setTimeout(() => {
+            wx.navigateTo({ url: "/pages/profile/pref" });
+          }, 400);
+        }
       })
       .catch((err) => {
         this.setData({ logging: false });

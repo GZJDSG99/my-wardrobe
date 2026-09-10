@@ -5,10 +5,18 @@ const {
   compressImage,
   uploadClothImage,
   addCloth,
+  getCloth,
+  updateCloth,
+  deleteCloth,
 } = require("../../utils/clothes.js");
+const { isLoggedIn, ensureLogin } = require("../../utils/auth.js");
 
 Page({
   data: {
+    mode: "add",
+    clothId: "",
+    imageFileId: "",
+    imageChanged: false,
     tempPath: "",
     name: "",
     brand: "",
@@ -23,13 +31,109 @@ Page({
       { id: "冬", on: false },
     ],
     saving: false,
+    deleting: false,
+    loading: false,
+    isEdit: false,
+    saveLabel: "保存入库",
+  },
+
+  onLoad(query) {
+    const id = (query && query.id) || "";
+    if (id) {
+      this.setData({
+        mode: "edit",
+        isEdit: true,
+        clothId: id,
+        loading: true,
+        saveLabel: "保存修改",
+      });
+      wx.setNavigationBarTitle({ title: "编辑单品" });
+    } else {
+      this.setData({
+        mode: "add",
+        isEdit: false,
+        saveLabel: "保存入库",
+      });
+      wx.setNavigationBarTitle({ title: "添加单品" });
+    }
+
+    if (!isLoggedIn()) {
+      wx.showModal({
+        title: "请先登录",
+        content: "登录后才能管理你的云端衣橱。",
+        confirmText: "去登录",
+        success: (res) => {
+          if (!res.confirm) {
+            wx.navigateBack({ delta: 1 });
+            return;
+          }
+          ensureLogin(true)
+            .then(() => {
+              wx.showToast({ title: "登录成功", icon: "success" });
+              if (id) this.loadCloth(id);
+            })
+            .catch((err) => {
+              wx.showModal({
+                title: "登录失败",
+                content: err.message || "请确认已部署云函数 login",
+                showCancel: false,
+                complete: () => wx.navigateBack({ delta: 1 }),
+              });
+            });
+        },
+      });
+      return;
+    }
+
+    if (id) this.loadCloth(id);
+  },
+
+  loadCloth(id) {
+    getCloth(id)
+      .then((cloth) => {
+        const colorIndex = Math.max(
+          0,
+          COLOR_PRESETS.findIndex(
+            (c) => c.value === cloth.color || c.name === cloth.colorName
+          )
+        );
+        const seasonSet = {};
+        (cloth.season || []).forEach((s) => {
+          seasonSet[s] = true;
+        });
+        this.setData({
+          loading: false,
+          name: cloth.name || "",
+          brand: cloth.brand === "未填品牌" ? "" : cloth.brand || "",
+          category: cloth.category || "tops",
+          colorIndex: colorIndex >= 0 ? colorIndex : 0,
+          tempPath: cloth.image || "",
+          imageFileId: cloth.imageFileId || "",
+          imageChanged: false,
+          seasons: [
+            { id: "春", on: !!seasonSet["春"] },
+            { id: "夏", on: !!seasonSet["夏"] },
+            { id: "秋", on: !!seasonSet["秋"] },
+            { id: "冬", on: !!seasonSet["冬"] },
+          ],
+        });
+      })
+      .catch((err) => {
+        this.setData({ loading: false });
+        wx.showModal({
+          title: "加载失败",
+          content: err.message || "找不到该衣物",
+          showCancel: false,
+          complete: () => wx.navigateBack({ delta: 1 }),
+        });
+      });
   },
 
   onChooseImage() {
     chooseClothImage()
       .then((path) => compressImage(path))
       .then((path) => {
-        this.setData({ tempPath: path });
+        this.setData({ tempPath: path, imageChanged: true });
       })
       .catch((err) => {
         if (err.message === "cancel") return;
@@ -62,10 +166,17 @@ Page({
   },
 
   onSave() {
-    if (this.data.saving) return;
+    if (this.data.saving || this.data.deleting) return;
+
+    if (!isLoggedIn()) {
+      wx.showToast({ title: "请先登录", icon: "none" });
+      return;
+    }
 
     const name = (this.data.name || "").trim();
-    if (!this.data.tempPath) {
+    const isEdit = this.data.mode === "edit";
+
+    if (!this.data.tempPath && !this.data.imageFileId) {
       wx.showToast({ title: "请先拍照或选图", icon: "none" });
       return;
     }
@@ -76,26 +187,42 @@ Page({
 
     const color = this.data.colors[this.data.colorIndex] || this.data.colors[0];
     const season = this.data.seasons.filter((s) => s.on).map((s) => s.id);
+    const payloadBase = {
+      name,
+      category: this.data.category,
+      color: color.value,
+      colorName: color.name,
+      brand: (this.data.brand || "").trim(),
+      season,
+    };
 
     this.setData({ saving: true });
-    wx.showLoading({ title: "上传中", mask: true });
+    wx.showLoading({ title: isEdit ? "保存中" : "上传中", mask: true });
 
-    uploadClothImage(this.data.tempPath)
-      .then((fileID) =>
-        addCloth({
-          name,
-          category: this.data.category,
-          color: color.value,
-          colorName: color.name,
-          brand: (this.data.brand || "").trim(),
-          season,
+    const uploadIfNeeded = () => {
+      if (isEdit && !this.data.imageChanged) {
+        return Promise.resolve(this.data.imageFileId);
+      }
+      return uploadClothImage(this.data.tempPath);
+    };
+
+    uploadIfNeeded()
+      .then((fileID) => {
+        if (isEdit) {
+          return updateCloth(this.data.clothId, {
+            ...payloadBase,
+            imageFileId: this.data.imageChanged ? fileID : undefined,
+          });
+        }
+        return addCloth({
+          ...payloadBase,
           imageFileId: fileID,
-        })
-      )
+        });
+      })
       .then(() => {
         wx.hideLoading();
         this.setData({ saving: false });
-        wx.showToast({ title: "已入库", icon: "success" });
+        wx.showToast({ title: isEdit ? "已保存" : "已入库", icon: "success" });
         setTimeout(() => {
           wx.navigateBack({ delta: 1 });
         }, 500);
@@ -104,7 +231,6 @@ Page({
         wx.hideLoading();
         this.setData({ saving: false });
         const msg = err.message || "保存失败";
-        // 常见：集合不存在
         if (msg.indexOf("COLLECTION_NOT_EXIST") >= 0 || msg.indexOf("not exist") >= 0) {
           wx.showModal({
             title: "需要创建数据库集合",
@@ -116,5 +242,32 @@ Page({
         }
         wx.showToast({ title: msg, icon: "none" });
       });
+  },
+
+  onDelete() {
+    if (this.data.mode !== "edit" || this.data.deleting || this.data.saving) return;
+
+    wx.showModal({
+      title: "删除这件衣物？",
+      content: "删除后无法恢复，推荐里也不会再使用它。",
+      confirmColor: "#B5695A",
+      success: (res) => {
+        if (!res.confirm) return;
+        this.setData({ deleting: true });
+        wx.showLoading({ title: "删除中", mask: true });
+        deleteCloth(this.data.clothId, this.data.imageFileId)
+          .then(() => {
+            wx.hideLoading();
+            this.setData({ deleting: false });
+            wx.showToast({ title: "已删除", icon: "success" });
+            setTimeout(() => wx.navigateBack({ delta: 1 }), 400);
+          })
+          .catch((err) => {
+            wx.hideLoading();
+            this.setData({ deleting: false });
+            wx.showToast({ title: err.message || "删除失败", icon: "none" });
+          });
+      },
+    });
   },
 });
