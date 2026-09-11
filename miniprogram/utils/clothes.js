@@ -1,6 +1,25 @@
 /** 云开发环境 */
 const CLOUD_ENV = "cloud1-4g0p7z3p8c0a5b52";
 const COLLECTION = "clothes";
+const LIST_CACHE_TTL = 60 * 1000;
+
+let listCache = null; // { at, items }
+
+function invalidateListCache() {
+  listCache = null;
+}
+
+function quotaError(err) {
+  const msg = (err && (err.errMsg || err.message)) || "";
+  if (
+    msg.indexOf("OutOfReadRequestQuota") >= 0 ||
+    msg.indexOf("Read overrun") >= 0 ||
+    msg.indexOf("-501015") >= 0
+  ) {
+    return new Error("云数据库今日读取次数已用完，请明天再试或升级云开发配额");
+  }
+  return err instanceof Error ? err : new Error(msg || "请求失败");
+}
 
 const CATEGORIES = [
   { id: "tops", label: "上衣" },
@@ -104,6 +123,54 @@ function uploadClothImage(tempFilePath) {
   });
 }
 
+/** 调用云函数抠图；失败时回退原图 */
+function cutoutClothImage(originalFileId) {
+  return ensureCloud().then(
+    () =>
+      new Promise((resolve) => {
+        wx.cloud.callFunction({
+          name: "cutout",
+          data: { fileID: originalFileId },
+          success(res) {
+            const result = (res && res.result) || {};
+            if (result.ok && result.cutoutFileId) {
+              resolve({
+                imageFileId: result.cutoutFileId,
+                originalFileId: originalFileId,
+                cutout: true,
+              });
+              return;
+            }
+            resolve({
+              imageFileId: originalFileId,
+              originalFileId: originalFileId,
+              cutout: false,
+              cutoutError: result.message || "抠图失败",
+            });
+          },
+          fail(err) {
+            resolve({
+              imageFileId: originalFileId,
+              originalFileId: originalFileId,
+              cutout: false,
+              cutoutError: (err && err.errMsg) || "抠图云函数调用失败",
+            });
+          },
+        });
+      })
+  );
+}
+
+/** 上传原图并抠图：展示图优先用抠图结果 */
+function uploadClothImageWithCutout(tempFilePath, onProgress) {
+  const tip = typeof onProgress === "function" ? onProgress : () => {};
+  tip("上传中");
+  return uploadClothImage(tempFilePath).then((originalFileId) => {
+    tip("抠图中");
+    return cutoutClothImage(originalFileId);
+  });
+}
+
 function resolveImageUrls(fileIDs) {
   const ids = (fileIDs || []).filter(Boolean);
   if (!ids.length) return Promise.resolve({});
@@ -125,6 +192,26 @@ function resolveImageUrls(fileIDs) {
   });
 }
 
+function mapClothRow(r, urlMap) {
+  const fileId = r.imageFileId || "";
+  return {
+    id: r._id,
+    name: r.name,
+    category: r.category,
+    color: r.color || "#F5E8D8",
+    colorName: r.colorName || "",
+    brand: r.brand || "未填品牌",
+    season: r.season || [],
+    worn: r.worn || 0,
+    idle: !!r.idle,
+    real: r.real !== false,
+    image: urlMap[fileId] || "",
+    imageFileId: fileId,
+    originalFileId: r.originalFileId || "",
+    cutout: !!r.cutout,
+  };
+}
+
 /** 新增衣物记录 */
 function addCloth(payload) {
   return ensureCloud().then(() => {
@@ -140,13 +227,19 @@ function addCloth(payload) {
           brand: payload.brand || "",
           season: payload.season || [],
           imageFileId: payload.imageFileId,
+          originalFileId: payload.originalFileId || payload.imageFileId || "",
+          cutout: !!payload.cutout,
           worn: 0,
+          idle: false,
           real: true,
           createdAt: db.serverDate(),
           updatedAt: db.serverDate(),
         },
       })
-      .then((res) => res._id);
+      .then((res) => {
+        invalidateListCache();
+        return res._id;
+      });
   });
 }
 
@@ -162,19 +255,11 @@ function getCloth(id) {
         const r = res.data;
         if (!r) return Promise.reject(new Error("衣物不存在"));
         const fileId = r.imageFileId || "";
-        return resolveImageUrls(fileId ? [fileId] : []).then((urlMap) => ({
-          id: r._id || id,
-          name: r.name || "",
-          category: r.category || "tops",
-          color: r.color || "#F5E8D8",
-          colorName: r.colorName || "",
-          brand: r.brand || "",
-          season: r.season || [],
-          worn: r.worn || 0,
-          real: r.real !== false,
-          image: urlMap[fileId] || "",
-          imageFileId: fileId,
-        }));
+        return resolveImageUrls(fileId ? [fileId] : []).then((urlMap) => {
+          const mapped = mapClothRow({ ...r, _id: r._id || id }, urlMap);
+          mapped.brand = r.brand || "";
+          return mapped;
+        });
       })
   );
 }
@@ -194,12 +279,57 @@ function updateCloth(id, payload) {
       updatedAt: db.serverDate(),
     };
     if (payload.imageFileId) data.imageFileId = payload.imageFileId;
-    return db.collection(COLLECTION).doc(id).update({ data });
+    if (payload.originalFileId) data.originalFileId = payload.originalFileId;
+    if (typeof payload.cutout === "boolean") data.cutout = payload.cutout;
+    if (typeof payload.idle === "boolean") data.idle = payload.idle;
+    return db
+      .collection(COLLECTION)
+      .doc(id)
+      .update({ data })
+      .then((res) => {
+        invalidateListCache();
+        return res;
+      });
+  });
+}
+
+/** 手动标记 / 取消闲置 */
+function setClothIdle(id, idle) {
+  if (!id) return Promise.reject(new Error("缺少衣物 id"));
+  return ensureCloud().then(() => {
+    const db = getDb();
+    return db
+      .collection(COLLECTION)
+      .doc(id)
+      .update({
+        data: {
+          idle: !!idle,
+          updatedAt: db.serverDate(),
+        },
+      })
+      .then((res) => {
+        invalidateListCache();
+        return res;
+      });
+  });
+}
+
+function deleteCloudFiles(fileList) {
+  const ids = (fileList || []).filter(Boolean);
+  if (!ids.length || !wx.cloud.deleteFile) return Promise.resolve(null);
+  const unique = Array.from(new Set(ids));
+  return new Promise((resolve) => {
+    wx.cloud.deleteFile({
+      fileList: unique,
+      complete() {
+        resolve(null);
+      },
+    });
   });
 }
 
 /** 删除衣物（并尝试删云存储图） */
-function deleteCloth(id, imageFileId) {
+function deleteCloth(id, imageFileId, originalFileId) {
   if (!id) return Promise.reject(new Error("缺少衣物 id"));
   return ensureCloud().then(() =>
     getDb()
@@ -207,21 +337,23 @@ function deleteCloth(id, imageFileId) {
       .doc(id)
       .remove()
       .then(() => {
-        if (!imageFileId || !wx.cloud.deleteFile) return null;
-        return new Promise((resolve) => {
-          wx.cloud.deleteFile({
-            fileList: [imageFileId],
-            complete() {
-              resolve(null);
-            },
-          });
-        });
+        invalidateListCache();
+        return deleteCloudFiles([imageFileId, originalFileId]);
       })
   );
 }
 
-/** 拉取当前用户衣物列表 */
-function listClothes() {
+/** 拉取当前用户衣物列表（短时缓存，避免重复读耗尽配额） */
+function listClothes(force) {
+  if (
+    !force &&
+    listCache &&
+    Date.now() - listCache.at < LIST_CACHE_TTL &&
+    Array.isArray(listCache.items)
+  ) {
+    return Promise.resolve(listCache.items.slice());
+  }
+
   return ensureCloud().then(() => {
     const db = getDb();
     const col = db.collection(COLLECTION);
@@ -229,19 +361,7 @@ function listClothes() {
     const mapRows = (rows) => {
       const fileIDs = rows.map((r) => r.imageFileId).filter(Boolean);
       return resolveImageUrls(fileIDs).then((urlMap) =>
-        rows.map((r) => ({
-          id: r._id,
-          name: r.name,
-          category: r.category,
-          color: r.color || "#F5E8D8",
-          colorName: r.colorName || "",
-          brand: r.brand || "未填品牌",
-          season: r.season || [],
-          worn: r.worn || 0,
-          real: r.real !== false,
-          image: urlMap[r.imageFileId] || "",
-          imageFileId: r.imageFileId,
-        }))
+        rows.map((r) => mapClothRow(r, urlMap))
       );
     };
 
@@ -250,12 +370,19 @@ function listClothes() {
       .limit(100)
       .get()
       .then((res) => mapRows(res.data || []))
-      .catch(() =>
-        col
+      .catch((err) => {
+        const q = quotaError(err);
+        if (q.message.indexOf("读取次数已用完") >= 0) return Promise.reject(q);
+        return col
           .limit(100)
           .get()
           .then((res) => mapRows(res.data || []))
-      );
+          .catch((err2) => Promise.reject(quotaError(err2)));
+      })
+      .then((items) => {
+        listCache = { at: Date.now(), items: items || [] };
+        return items.slice();
+      });
   });
 }
 
@@ -282,10 +409,14 @@ module.exports = {
   chooseClothImage,
   compressImage,
   uploadClothImage,
+  uploadClothImageWithCutout,
+  cutoutClothImage,
   addCloth,
   getCloth,
   updateCloth,
+  setClothIdle,
   deleteCloth,
   listClothes,
+  invalidateListCache,
   buildCategoryStats,
 };

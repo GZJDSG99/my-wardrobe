@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "timeout": 60,
+  "memorySize": 256,
+  "envVariables": {
+    "PICWISH_API_KEY": ""
+  }
+}

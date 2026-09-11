@@ -1,0 +1,31 @@
+<view class="splash {{leaving ? 'splash-out' : ''}}" bindtap="onEnter">
+  <view class="ring ring-1"></view>
+  <view class="ring ring-2"></view>
+  <view class="ring ring-3"></view>
+
+  <view class="flower-wrap {{phase}}">
+    <view class="petal p1"></view>
+    <view class="petal p2"></view>
+    <view class="petal p3"></view>
+    <view class="petal p4"></view>
+    <view class="petal p5"></view>
+    <view class="petal p6"></view>
+    <view class="petal p7"></view>
+    <view class="petal p8"></view>
+    <view class="flower-core"></view>
+  </view>
+
+  <view class="brand {{phase}}">
+    <view class="brand-zh">Dresia</view>
+    <view class="brand-en">OOTD</view>
+  </view>
+
+  <view class="hint {{phase}}">
+    <text class="hint-txt">轻触花朵开启</text>
+    <view class="dots">
+      <view class="dot d1"></view>
+      <view class="dot d2"></view>
+      <view class="dot d3"></view>
+    </view>
+  </view>
+</view>

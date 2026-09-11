@@ -1,4 +1,4 @@
-<view class="tabbar">
+<view class="tabbar {{hidden ? 'tabbar-hidden' : ''}}">
   <view
     wx:for="{{list}}"
     wx:key="pagePath"
@@ -7,7 +7,11 @@
     bindtap="onSwitch"
   >
     <view class="icon-wrap {{selected === index ? 'icon-on' : ''}}">
-      <text class="icon">{{item.icon}}</text>
+      <image
+        class="icon-img"
+        src="{{selected === index ? item.iconActive : item.icon}}"
+        mode="aspectFit"
+      />
     </view>
     <text class="label">{{item.text}}</text>
   </view>

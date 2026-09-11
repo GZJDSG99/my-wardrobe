@@ -1,0 +1,55 @@
+@import "../sub.wxss";
+
+.banner {
+  margin: 24rpx 40rpx;
+  padding: 28rpx;
+}
+
+.banner-title {
+  font-size: 36rpx;
+}
+
+.banner-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+}
+
+.row {
+  margin: 0 40rpx 20rpx;
+  padding: 20rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.thumb {
+  width: 140rpx;
+  height: 180rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  background: var(--muted);
+}
+
+.thumb-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  background: var(--secondary);
+}
+
+.title {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.meta {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+}
+
+.reason {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--fg);
+  line-height: 1.45;
+}

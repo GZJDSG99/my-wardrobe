@@ -1,0 +1,341 @@
+<view class="page studio {{pageEnter ? 'page-enter' : ''}}">
+  <view class="hero section-pad">
+    <view class="hero-top">
+      <view>
+        <view class="hero-title font-display">自定义搭配</view>
+        <view class="hero-sub muted">自由组合 · 打造属于你的风格</view>
+      </view>
+      <view class="mode-switch">
+        <view
+          class="mode-btn {{pageMode === 'canvas' ? 'on' : ''}}"
+          data-mode="canvas"
+          bindtap="onSwitchMode"
+        >搭配模式</view>
+        <view
+          class="mode-btn {{pageMode === 'list' ? 'on' : ''}}"
+          data-mode="list"
+          bindtap="onSwitchMode"
+        >列表模式</view>
+      </view>
+    </view>
+    <input
+      class="title-input"
+      placeholder="给这套搭配起个名字（可选）"
+      maxlength="16"
+      value="{{title}}"
+      bindinput="onTitle"
+    />
+  </view>
+
+  <!-- 搭配模式：中间全幅预览 + 右侧可展开已选 -->
+  <block wx:if="{{pageMode === 'canvas'}}">
+    <view class="workspace section-pad {{sidebarOpen ? 'is-open' : ''}}">
+      <view class="canvas">
+        <view class="canvas-hint muted">
+          <text>✋</text>
+          <text>点击下方单品组合到这里</text>
+        </view>
+
+        <view wx:if="{{!canvasPieces.length}}" class="canvas-empty">
+          <text class="canvas-empty-txt">从衣柜选上装、下装开始吧</text>
+        </view>
+
+        <view wx:else class="stage">
+          <view class="stage-body">
+            <block wx:for="{{slots}}" wx:key="key">
+              <view
+                wx:if="{{item.key === 'tops' || item.key === 'coats'}}"
+                class="stage-slot slot-{{item.key}} {{item.selected ? 'has' : ''}}"
+              >
+                <block wx:if="{{item.selected}}">
+                  <image
+                    wx:if="{{item.selected.image}}"
+                    class="stage-img"
+                    src="{{item.selected.image}}"
+                    mode="aspectFit"
+                  />
+                  <view
+                    wx:else
+                    class="stage-img stage-fallback"
+                    style="background: {{item.selected.color}};"
+                  ></view>
+                  <view class="stage-x" data-key="{{item.key}}" catchtap="onClearSlot">×</view>
+                </block>
+              </view>
+            </block>
+
+            <block wx:for="{{slots}}" wx:key="key">
+              <view
+                wx:if="{{item.key === 'bottoms'}}"
+                class="stage-slot slot-bottoms {{item.selected ? 'has' : ''}}"
+              >
+                <block wx:if="{{item.selected}}">
+                  <image
+                    wx:if="{{item.selected.image}}"
+                    class="stage-img"
+                    src="{{item.selected.image}}"
+                    mode="aspectFit"
+                  />
+                  <view
+                    wx:else
+                    class="stage-img stage-fallback"
+                    style="background: {{item.selected.color}};"
+                  ></view>
+                  <view class="stage-x" data-key="{{item.key}}" catchtap="onClearSlot">×</view>
+                </block>
+              </view>
+            </block>
+
+            <view class="stage-feet">
+              <block wx:for="{{slots}}" wx:key="key">
+                <view
+                  wx:if="{{item.key === 'shoes'}}"
+                  class="stage-slot slot-shoes {{item.selected ? 'has' : ''}}"
+                >
+                  <block wx:if="{{item.selected}}">
+                    <image
+                      wx:if="{{item.selected.image}}"
+                      class="stage-img sm"
+                      src="{{item.selected.image}}"
+                      mode="aspectFit"
+                    />
+                    <view
+                      wx:else
+                      class="stage-img sm stage-fallback"
+                      style="background: {{item.selected.color}};"
+                    ></view>
+                    <view class="stage-x" data-key="{{item.key}}" catchtap="onClearSlot">×</view>
+                  </block>
+                </view>
+              </block>
+              <block wx:for="{{slots}}" wx:key="key">
+                <view
+                  wx:if="{{item.key === 'accessories'}}"
+                  class="stage-slot slot-acc {{item.selected ? 'has' : ''}}"
+                >
+                  <block wx:if="{{item.selected}}">
+                    <image
+                      wx:if="{{item.selected.image}}"
+                      class="stage-img sm"
+                      src="{{item.selected.image}}"
+                      mode="aspectFit"
+                    />
+                    <view
+                      wx:else
+                      class="stage-img sm stage-fallback"
+                      style="background: {{item.selected.color}};"
+                    ></view>
+                    <view class="stage-x" data-key="{{item.key}}" catchtap="onClearSlot">×</view>
+                  </block>
+                </view>
+              </block>
+            </view>
+          </view>
+
+          <view class="fab fab-tops" data-key="tops" bindtap="onFocusSlot">
+            <text class="fab-ico">上衣</text>
+            <text class="fab-txt">换上装</text>
+          </view>
+          <view class="fab fab-bottoms" data-key="bottoms" bindtap="onFocusSlot">
+            <text class="fab-ico">裤</text>
+            <text class="fab-txt">换下装</text>
+          </view>
+          <view class="fab fab-shoes" data-key="shoes" bindtap="onFocusSlot">
+            <text class="fab-ico">鞋</text>
+            <text class="fab-txt">换鞋子</text>
+          </view>
+          <view class="fab fab-acc" data-key="accessories" bindtap="onFocusSlot">
+            <text class="fab-ico">饰</text>
+            <text class="fab-txt">换配饰</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 收起时：右侧拉手 -->
+      <view
+        wx:if="{{!sidebarOpen}}"
+        class="sidebar-tab"
+        bindtap="onToggleSidebar"
+      >
+        <text class="tab-label">已选</text>
+        <text class="tab-count">{{selectedCount}}</text>
+      </view>
+
+      <!-- 展开时：右侧抽屉 -->
+      <view class="sidebar-drawer {{sidebarOpen ? 'open' : ''}}">
+        <view class="drawer-toggle" bindtap="onToggleSidebar">›</view>
+        <view class="sidebar">
+          <view class="panel selected-panel">
+            <view class="panel-head">
+              <text class="panel-title">已选搭配</text>
+              <view class="panel-meta">
+                <text class="count-pill">{{selectedCount}}/{{maxSlots}}</text>
+                <text class="clear-ico" catchtap="onClearAll">🗑</text>
+              </view>
+            </view>
+            <scroll-view scroll-y class="sel-scroll" enhanced show-scrollbar="{{false}}">
+              <view wx:if="{{!selectedCount}}" class="muted panel-empty">点选单品后显示在这里</view>
+              <block wx:for="{{slots}}" wx:key="key">
+                <view wx:if="{{item.selected}}" class="sel-row">
+                  <image
+                    wx:if="{{item.selected.image}}"
+                    class="sel-thumb"
+                    src="{{item.selected.image}}"
+                    mode="aspectFill"
+                  />
+                  <view
+                    wx:else
+                    class="sel-thumb"
+                    style="background: {{item.selected.color}};"
+                  ></view>
+                  <view class="sel-info">
+                    <text class="sel-cat">{{item.label}}</text>
+                    <text class="sel-name">{{item.selected.name}}</text>
+                  </view>
+                  <view class="sel-remove" data-key="{{item.key}}" bindtap="onClearSlot">×</view>
+                </view>
+              </block>
+            </scroll-view>
+          </view>
+
+          <view class="panel tip-panel">
+            <view class="panel-head">
+              <text class="panel-title">💡 搭配小贴士</text>
+            </view>
+            <view class="tip-text">{{tipsText}}</view>
+            <view class="tip-tags">
+              <text wx:for="{{tipsTags}}" wx:key="*this" class="tip-tag">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 列表模式 -->
+  <block wx:else>
+    <view class="list-mode section-pad">
+      <view wx:for="{{slots}}" wx:key="key" class="list-slot">
+        <view class="list-slot-head">
+          <text class="list-slot-label">{{item.label}}</text>
+          <text class="muted">{{item.required ? '必选' : '可选'}}</text>
+        </view>
+        <view wx:if="{{item.selected}}" class="list-selected">
+          <image
+            wx:if="{{item.selected.image}}"
+            class="sel-thumb"
+            src="{{item.selected.image}}"
+            mode="aspectFill"
+          />
+          <view
+            wx:else
+            class="sel-thumb"
+            style="background: {{item.selected.color}};"
+          ></view>
+          <text class="sel-name">{{item.selected.name}}</text>
+          <view class="sel-remove" data-key="{{item.key}}" bindtap="onClearSlot">取消</view>
+        </view>
+        <view wx:else class="muted list-empty">在下方选择{{item.label}}</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 分类 -->
+  <scroll-view scroll-x class="cat-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="cat-row">
+      <view
+        wx:for="{{categoryTabs}}"
+        wx:key="id"
+        class="cat-chip {{activeCat === item.id ? 'on' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onPickCat"
+      >
+        <text>{{item.label}}</text>
+        <text class="cat-count">{{item.count}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底栏 Tab -->
+  <view class="bottom-tabs section-pad">
+    <view
+      class="btab {{bottomTab === 'recommend' ? 'on' : ''}}"
+      data-tab="recommend"
+      bindtap="onSwitchBottom"
+    >推荐搭配</view>
+    <view
+      class="btab {{bottomTab === 'wardrobe' ? 'on' : ''}}"
+      data-tab="wardrobe"
+      bindtap="onSwitchBottom"
+    >我的衣柜</view>
+    <view
+      class="btab {{bottomTab === 'inspire' ? 'on' : ''}}"
+      data-tab="inspire"
+      bindtap="onSwitchBottom"
+    >风格灵感</view>
+  </view>
+
+  <scroll-view scroll-x class="picker-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="picker-row" wx:if="{{bottomTab === 'wardrobe'}}">
+      <view wx:if="{{!pickerList.length}}" class="muted picker-empty">该类暂无单品</view>
+      <view
+        wx:for="{{pickerList}}"
+        wx:key="id"
+        class="pick-card {{item.inUse ? 'in-use' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onAddCloth"
+      >
+        <view class="pick-badge" wx:if="{{item.inUse}}">使用中</view>
+        <view class="pick-plus" wx:else>＋</view>
+        <image
+          wx:if="{{item.image}}"
+          class="pick-img"
+          src="{{item.image}}"
+          mode="aspectFill"
+        />
+        <view
+          wx:else
+          class="pick-img"
+          style="background: {{item.color}};"
+        ></view>
+        <text class="pick-name">{{item.name}}</text>
+      </view>
+    </view>
+
+    <view class="picker-row" wx:elif="{{bottomTab === 'recommend'}}">
+      <view wx:if="{{!recommendCards.length}}" class="muted picker-empty">暂无推荐，先丰富衣橱</view>
+      <view
+        wx:for="{{recommendCards}}"
+        wx:key="id"
+        class="rec-card {{activeRecId === item.id ? 'in-use' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onApplyRecommend"
+      >
+        <view class="pick-badge" wx:if="{{activeRecId === item.id}}">使用中</view>
+        <view class="rec-title">{{item.title}}</view>
+        <view class="rec-sub muted">{{item.itemsText}}</view>
+        <view class="rec-tag">{{item.tagText}}</view>
+      </view>
+    </view>
+
+    <view class="picker-row" wx:else>
+      <view
+        wx:for="{{inspireCards}}"
+        wx:key="id"
+        class="rec-card"
+        data-id="{{item.id}}"
+        bindtap="onApplyInspire"
+      >
+        <view class="rec-title">{{item.title}}</view>
+        <view class="rec-sub muted">{{item.desc}}</view>
+        <view class="rec-tag">{{item.hint}}</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="footer">
+    <view class="foot-btn ghost" bindtap="onClearAll">清空</view>
+    <view class="foot-btn ghost" loading="{{saving}}" bindtap="onSave">保存</view>
+    <button class="foot-done" loading="{{saving}}" bindtap="onDone">完成</button>
+  </view>
+</view>

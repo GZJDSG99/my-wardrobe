@@ -38,42 +38,42 @@ Page({
         label: "穿搭历史",
         sub: "连续出门与每日采纳记录",
         icon: "★",
-        url: "/pages/profile/history",
+        url: "/package-me/history/history",
       },
       {
         id: "care",
         label: "衣物护理",
         sub: "洗涤提醒、换季收纳、断舍离",
         icon: "♨",
-        url: "/pages/profile/care",
+        url: "/package-me/care/care",
       },
       {
         id: "inspire",
         label: "灵感打卡",
         sub: "私密打卡与周主题收藏",
         icon: "♡",
-        url: "/pages/profile/inspire",
+        url: "/package-me/inspire/inspire",
       },
       {
         id: "pref",
         label: "风格偏好",
         sub: "场景与主题画像",
         icon: "◎",
-        url: "/pages/profile/pref",
+        url: "/package-me/pref/pref",
       },
       {
         id: "vip",
         label: "会员权益",
         sub: "识别额度与高级推荐",
         icon: "◆",
-        url: "/pages/profile/vip",
+        url: "/package-me/vip/vip",
       },
       {
         id: "settings",
         label: "设置",
         sub: "城市、通知、关于",
         icon: "⚙",
-        url: "/pages/profile/settings",
+        url: "/package-me/settings/settings",
       },
     ],
   },
@@ -163,7 +163,7 @@ Page({
         wx.showToast({ title: "登录成功", icon: "success" });
         if (!isProfileComplete(profile)) {
           setTimeout(() => {
-            wx.navigateTo({ url: "/pages/profile/pref" });
+            wx.navigateTo({ url: "/package-me/pref/pref" });
           }, 400);
         }
       })
@@ -182,11 +182,11 @@ Page({
       this.onLogin();
       return;
     }
-    wx.navigateTo({ url: "/pages/profile/pref" });
+    wx.navigateTo({ url: "/package-me/pref/pref" });
   },
 
   onOpenSettings() {
-    wx.navigateTo({ url: "/pages/profile/settings" });
+    wx.navigateTo({ url: "/package-me/settings/settings" });
   },
 
   onMenu(e) {

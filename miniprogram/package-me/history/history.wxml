@@ -1,0 +1,24 @@
+<view class="page page-sub {{pageEnter ? 'page-enter' : ''}}">
+  <view class="banner card">
+    <view class="banner-title font-display">连续出门 {{streak}} 天</view>
+    <view class="banner-sub muted">在推荐页点「今天穿这套」会记入这里</view>
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="empty">
+    <view class="empty-title font-display">还没有穿搭记录</view>
+    <view class="empty-sub muted">去推荐页采纳一套今日穿搭吧</view>
+    <button class="primary-btn" bindtap="onGoRecommend">去推荐</button>
+  </view>
+
+  <view wx:else class="list">
+    <view wx:for="{{list}}" wx:key="id" class="card row">
+      <image wx:if="{{item.image}}" class="thumb" src="{{item.image}}" mode="aspectFill" />
+      <view wx:else class="thumb thumb-ph">✦</view>
+      <view class="body">
+        <view class="title">{{item.title}}</view>
+        <view class="meta muted">{{item.dateText}} · {{item.temp || '天气未记录'}}</view>
+        <view class="reason">{{item.reason}}</view>
+      </view>
+    </view>
+  </view>
+</view>

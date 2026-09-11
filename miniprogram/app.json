@@ -1,23 +1,56 @@
 {
   "pages": [
+    "pages/splash/splash",
     "pages/recommend/recommend",
-    "pages/recommend/custom",
     "pages/wardrobe/wardrobe",
-    "pages/wardrobe/add",
     "pages/weather/weather",
-    "pages/profile/profile",
-    "pages/profile/history",
-    "pages/profile/care",
-    "pages/profile/inspire",
-    "pages/profile/pref",
-    "pages/profile/vip",
-    "pages/profile/settings"
+    "pages/profile/profile"
   ],
+  "subpackages": [
+    {
+      "root": "package-closet",
+      "name": "closet",
+      "pages": [
+        "add/add",
+        "custom/custom"
+      ]
+    },
+    {
+      "root": "package-me",
+      "name": "me",
+      "pages": [
+        "history/history",
+        "care/care",
+        "inspire/inspire",
+        "pref/pref",
+        "vip/vip",
+        "settings/settings"
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/splash/splash": {
+      "network": "all",
+      "packages": ["closet"]
+    },
+    "pages/recommend/recommend": {
+      "network": "all",
+      "packages": ["closet"]
+    },
+    "pages/wardrobe/wardrobe": {
+      "network": "all",
+      "packages": ["closet"]
+    },
+    "pages/profile/profile": {
+      "network": "all",
+      "packages": ["me"]
+    }
+  },
   "window": {
     "navigationBarTitleText": "Dresia",
-    "navigationBarBackgroundColor": "#FAF7F4",
+    "navigationBarBackgroundColor": "#F9F2E9",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#FAF7F4",
+    "backgroundColor": "#F9F2E9",
     "backgroundTextStyle": "dark"
   },
   "cloud": true,
@@ -39,11 +72,11 @@
     "list": [
       {
         "pagePath": "pages/recommend/recommend",
-        "text": "推荐"
+        "text": "首页"
       },
       {
         "pagePath": "pages/wardrobe/wardrobe",
-        "text": "衣物"
+        "text": "衣橱"
       },
       {
         "pagePath": "pages/weather/weather",

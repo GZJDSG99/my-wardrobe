@@ -1,0 +1,58 @@
+<view class="page page-sub {{pageEnter ? 'page-enter' : ''}}">
+  <view class="section-pad brand-block">
+    <view class="brand-name font-display">Dresia</view>
+    <view class="brand-en">Open Your Closet. Discover Your Style.</view>
+    <view class="brand-zh muted">打开衣橱，发现更多风格</view>
+  </view>
+
+  <view class="section-pad">
+    <view class="block-title">账号</view>
+    <view class="account card">
+      <view wx:if="{{loggedIn}}" class="account-row">
+        <text>已登录</text>
+        <text class="muted">{{openidMask}}</text>
+      </view>
+      <view wx:else class="account-row">
+        <text>未登录</text>
+        <text class="muted">登录后衣物按微信账号隔离</text>
+      </view>
+      <button
+        wx:if="{{!loggedIn}}"
+        class="primary-btn block"
+        loading="{{logging}}"
+        bindtap="onLogin"
+      >微信授权登录</button>
+      <button wx:else class="ghost-btn block" bindtap="onLogout">退出登录</button>
+    </view>
+  </view>
+
+  <view class="section-pad">
+    <view class="block-title">默认城市</view>
+    <view class="chips">
+      <view
+        wx:for="{{cities}}"
+        wx:key="query"
+        class="chip {{cityQuery === item.query ? 'on' : ''}}"
+        data-query="{{item.query}}"
+        data-name="{{item.name}}"
+        bindtap="onPickCity"
+      >{{item.name}}</view>
+    </view>
+    <view class="muted tip">定位优先；未定位时推荐与天气使用默认城市（当前 {{cityName}}）。</view>
+  </view>
+
+  <view class="menu card">
+    <view class="menu-item" bindtap="onOpenPrivacy">
+      <text>用户隐私保护</text>
+      <text class="chev muted">›</text>
+    </view>
+    <view class="menu-item" bindtap="onClearCache">
+      <text>清除本地缓存</text>
+      <text class="chev muted">›</text>
+    </view>
+    <view class="menu-item" bindtap="onAbout">
+      <text>关于</text>
+      <text class="chev muted">›</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,20 @@
+<view class="page page-sub {{pageEnter ? 'page-enter' : ''}}">
+  <view class="intro section-pad">
+    <view class="h1-like font-display">护理</view>
+    <view class="muted lead">根据你的衣橱生成提醒，不打断每日穿搭主路径。</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="muted section-pad">生成护理建议中…</view>
+
+  <view class="list">
+    <view wx:for="{{tasks}}" wx:key="id" class="task">
+      <view class="task-due primary">{{item.due}}</view>
+      <view class="task-title font-display">{{item.title}}</view>
+      <view class="task-detail muted">{{item.detail}}</view>
+    </view>
+  </view>
+
+  <view class="section-pad">
+    <button class="primary-btn" bindtap="onGoWardrobe">去衣橱看看</button>
+  </view>
+</view>

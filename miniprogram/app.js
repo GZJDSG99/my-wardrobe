@@ -1,3 +1,10 @@
+const { withPageTransition } = require("./utils/page-transition.js");
+
+const originPage = Page;
+Page = function (options) {
+  return originPage(withPageTransition(options || {}));
+};
+
 App({
   onLaunch() {
     this.initCloud();

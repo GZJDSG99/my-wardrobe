@@ -1,0 +1,294 @@
+.splash {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f9f2e9;
+  overflow: hidden;
+}
+
+.splash-out {
+  animation: splashBgOut 0.7s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ring-1 {
+  width: 548rpx;
+  height: 548rpx;
+  border: 3rpx solid #e8d6c4;
+  opacity: 0.15;
+  animation: splashRingPulse 3.8s 1.4s ease-in-out infinite;
+}
+
+.ring-2 {
+  width: 440rpx;
+  height: 440rpx;
+  border: 2rpx solid #dfc8b0;
+  opacity: 0.1;
+  animation: splashRingPulse 3.8s 1.9s ease-in-out infinite;
+}
+
+.ring-3 {
+  width: 344rpx;
+  height: 344rpx;
+  border: 1.5rpx solid #d8bfa8;
+  opacity: 0.08;
+  animation: splashRingPulse 4.2s 2.4s ease-in-out infinite;
+}
+
+.flower-wrap {
+  position: relative;
+  width: 280rpx;
+  height: 280rpx;
+}
+
+.flower-wrap.in {
+  animation: splashFlowerIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.flower-wrap.idle {
+  animation: splashBreath 3.8s ease-in-out infinite;
+}
+
+.flower-wrap.out {
+  animation: splashFlowerSpin 0.66s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+.petal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72rpx;
+  height: 120rpx;
+  margin-left: -36rpx;
+  margin-top: -120rpx;
+  border-radius: 50% 50% 48% 48%;
+  background: #edd1bb;
+  transform-origin: 50% 100%;
+  opacity: 0.92;
+}
+
+.p1 { transform: rotate(0deg); }
+.p2 { transform: rotate(45deg); background: #f5e3d0; }
+.p3 { transform: rotate(90deg); }
+.p4 { transform: rotate(135deg); background: #f5e3d0; }
+.p5 { transform: rotate(180deg); }
+.p6 { transform: rotate(225deg); background: #f5e3d0; }
+.p7 { transform: rotate(270deg); }
+.p8 { transform: rotate(315deg); background: #f5e3d0; }
+
+.flower-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56rpx;
+  height: 56rpx;
+  margin: -28rpx 0 0 -28rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f8eee3 0%, #d4aa88 100%);
+  box-shadow: 0 0 0 8rpx rgba(250, 240, 232, 0.55);
+}
+
+.brand {
+  margin-top: 56rpx;
+  text-align: center;
+  opacity: 0;
+}
+
+.brand.in {
+  animation: splashTagIn 0.9s 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.brand.idle {
+  opacity: 0.55;
+}
+
+.brand.out {
+  animation: splashTagOut 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.brand-zh {
+  font-family: "Playfair Display", "Songti SC", serif;
+  font-size: 30rpx;
+  letter-spacing: 0.18em;
+  color: #9b7c62;
+  font-weight: 400;
+}
+
+.brand-en {
+  margin-top: 10rpx;
+  font-family: "DM Sans", "PingFang SC", sans-serif;
+  font-size: 20rpx;
+  letter-spacing: 0.28em;
+  color: #c4a882;
+}
+
+.hint {
+  position: absolute;
+  bottom: calc(80rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  opacity: 0;
+}
+
+.hint.in {
+  animation: splashDotIn 0.7s 1.6s ease both;
+}
+
+.hint.idle {
+  animation: splashDotBlink 2.2s ease-in-out infinite;
+}
+
+.hint.out {
+  animation: splashTagOut 0.28s ease forwards;
+}
+
+.hint-txt {
+  font-family: "Songti SC", serif;
+  font-size: 22rpx;
+  letter-spacing: 0.18em;
+  color: #c4a882;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.dot {
+  border-radius: 50%;
+  background: #c4a882;
+}
+
+.d1,
+.d3 {
+  width: 7rpx;
+  height: 7rpx;
+  opacity: 0.38;
+}
+
+.d2 {
+  width: 10rpx;
+  height: 10rpx;
+  opacity: 0.65;
+}
+
+@keyframes splashFlowerIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.07);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashBreath {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.055);
+  }
+}
+
+@keyframes splashFlowerSpin {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.14) rotate(140deg);
+  }
+  65% {
+    opacity: 0.5;
+    transform: scale(0.85) rotate(380deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.28) rotate(560deg);
+  }
+}
+
+@keyframes splashBgOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes splashTagIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashTagOut {
+  0% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes splashRingPulse {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.28;
+    transform: scale(1.09);
+  }
+}
+
+@keyframes splashDotIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 0.45;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashDotBlink {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}

@@ -1,6 +1,6 @@
 /** Figma Make 衣橱管理 — theme tokens（叠加业务功能） */
 page {
-  --bg: #faf7f4;
+  --bg: #f9f2e9;
   --fg: #1c1917;
   --card: #ffffff;
   --primary: #b5695a;
@@ -49,6 +49,21 @@ button::after {
   min-height: 100vh;
   padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
   background: var(--bg);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0.35;
+    transform: translate3d(0, 18rpx, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .font-display {

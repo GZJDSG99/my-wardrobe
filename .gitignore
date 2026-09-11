@@ -1,6 +1,7 @@
 # 本地私有配置
 project.private.config.json
 miniprogram/config/secret.js
+cloudfunctions/cutout/secret.js
 
 # 工具与依赖
 node_modules/

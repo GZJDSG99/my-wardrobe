@@ -1,8 +1,9 @@
-<view class="page">
+<page-meta page-style="{{pageStyle}}" />
+<view class="page {{previewShow ? 'page-lock' : ''}} {{pageEnter ? 'page-enter' : ''}}">
   <view class="header section-pad">
     <view>
       <view class="eyebrow">我的衣橱</view>
-      <view class="h1">{{total}} 件单品</view>
+      <view class="h1 font-display">{{total}} 件单品</view>
     </view>
     <view class="header-actions">
       <view class="icon-btn icon-btn-primary" bindtap="onAdd">＋</view>
@@ -12,64 +13,121 @@
   <view class="hint muted section-pad">{{hintText}}</view>
 
   <block wx:if="{{loggedIn}}">
-  <scroll-view scroll-x class="cats section-pad" enhanced show-scrollbar="{{false}}">
-    <view class="cat-row">
-      <view
-        wx:for="{{categories}}"
-        wx:key="id"
-        class="cat {{activeCategory === item.id ? 'cat-on' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onCategory"
-      >
-        {{item.label}}
-        <text class="count">{{item.count}}</text>
-      </view>
-    </view>
-  </scroll-view>
+    <view wx:if="{{loading}}" class="muted section-pad">同步中…</view>
 
-  <view wx:if="{{!loading && filtered.length === 0}}" class="empty section-pad">
-    <view class="empty-title font-display">还没有衣物</view>
-    <view class="empty-sub muted">拍一张衣服照片，填好品类就能入库。</view>
-    <button class="empty-btn" bindtap="onAdd">添加第一件</button>
-  </view>
-
-  <view wx:elif="{{!loading}}" class="grid section-pad">
-    <view
-      wx:for="{{filtered}}"
-      wx:key="id"
-      class="item card"
-      data-id="{{item.id}}"
-      bindtap="onEdit"
-    >
-      <view class="thumb-wrap">
-        <image
-          wx:if="{{item.image}}"
-          class="thumb"
-          src="{{item.image}}"
-          mode="aspectFill"
-          lazy-load
-        />
-        <view wx:else class="thumb tone-fallback" style="background: {{item.color}};"></view>
-        <view class="dot" style="background: {{item.color}};"></view>
-        <view class="flag flag-real">柜中</view>
-      </view>
-      <view class="meta">
-        <view class="brand muted">{{item.brand}}</view>
-        <view class="name">{{item.name}}</view>
-        <view class="worn muted">已穿 {{item.worn}} 次</view>
-      </view>
+    <view wx:elif="{{total === 0}}" class="empty section-pad">
+      <view class="empty-title font-display">衣橱还是空的</view>
+      <view class="empty-sub muted">拍几件常穿的，挂进真实衣橱层架。</view>
+      <button class="empty-btn" bindtap="onAdd">添加第一件</button>
     </view>
 
-    <view class="add card" bindtap="onAdd">
-      <text class="cam">📷</text>
-      <text class="add-text">添加单品</text>
+    <view wx:else class="closet section-pad">
+      <view class="closet-frame">
+        <view class="closet-rail"></view>
+
+        <view
+          wx:for="{{shelves}}"
+          wx:key="id"
+          class="shelf {{item.thin ? 'shelf-thin' : ''}}"
+        >
+          <view class="shelf-meta">
+            <text class="shelf-label font-display">{{item.label}}</text>
+            <text class="shelf-layer muted">{{item.layer}} · {{item.items.length}} 件</text>
+          </view>
+
+          <view class="shelf-board">
+            <scroll-view
+              scroll-x
+              class="shelf-scroll"
+              enhanced
+              show-scrollbar="{{false}}"
+              enable-flex
+            >
+              <view class="stack-row">
+                <view wx:if="{{item.items.length === 0}}" class="shelf-empty muted">本层暂无单品</view>
+
+                <view
+                  wx:for="{{item.items}}"
+                  wx:for-item="cloth"
+                  wx:key="id"
+                  class="hang-card"
+                  style="{{cloth.stackStyle}}"
+                  data-id="{{cloth.id}}"
+                  bindtap="onPreview"
+                >
+                  <view wx:if="{{!item.thin}}" class="hang-hook"></view>
+                  <view class="hang-body">
+                    <image
+                      wx:if="{{cloth.image}}"
+                      class="hang-img"
+                      src="{{cloth.image}}"
+                      mode="aspectFill"
+                      lazy-load
+                    />
+                    <view
+                      wx:else
+                      class="hang-img hang-fallback"
+                      style="background: {{cloth.color}};"
+                    ></view>
+                    <view class="hang-name">{{cloth.name}}</view>
+                  </view>
+                </view>
+
+                <view class="hang-add" bindtap="onAdd">
+                  <text class="hang-add-ico">＋</text>
+                  <text class="hang-add-txt">添加</text>
+                </view>
+              </view>
+            </scroll-view>
+            <view class="shelf-edge"></view>
+          </view>
+        </view>
+      </view>
     </view>
-  </view>
   </block>
 
   <view wx:else class="empty section-pad">
     <view class="empty-title font-display">登录后查看衣橱</view>
     <view class="empty-sub muted">衣物按微信账号隔离，登录后同步云端数据。</view>
     <button class="empty-btn" loading="{{logging}}" bindtap="onLogin">微信授权登录</button>
+  </view>
+
+  <view wx:if="{{previewShow}}" class="preview-mask" catchtouchmove="noop" bindtap="onClosePreview">
+    <view class="preview-sheet" catchtap="noop">
+      <scroll-view scroll-y class="preview-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="preview-media">
+          <block wx:if="{{preview.image}}">
+            <image
+              class="preview-img"
+              src="{{preview.image}}"
+              mode="widthFix"
+            />
+          </block>
+          <block wx:else>
+            <view
+              class="preview-img preview-ph"
+              style="background: {{preview.color}};"
+            ></view>
+          </block>
+          <view class="preview-media-actions">
+            <view
+              class="preview-idle {{preview.idle ? 'on' : ''}} {{previewIdleBusy ? 'disabled' : ''}}"
+              catchtap="onToggleIdlePreview"
+            >{{preview.idleLabel}}</view>
+            <view class="preview-delete" catchtap="onDeletePreview">删除</view>
+          </view>
+        </view>
+        <view class="preview-body">
+          <view class="preview-cat muted">{{preview.categoryLabel}}</view>
+          <view class="preview-name font-display">{{preview.name}}</view>
+          <view wx:if="{{preview.brandText}}" class="preview-brand muted">{{preview.brandText}}</view>
+          <view class="preview-worn muted">已穿 {{preview.worn}} 次</view>
+        </view>
+      </scroll-view>
+      <view class="preview-actions">
+        <button class="preview-edit" bindtap="onEditPreview">编辑</button>
+        <button class="preview-close" bindtap="onClosePreview">关闭</button>
+      </view>
+    </view>
   </view>
 </view>

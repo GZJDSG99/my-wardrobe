@@ -6,7 +6,26 @@ const SLOT_DEFS = [
   { key: "bottoms", label: "下装", required: true, categories: ["pants", "skirts"] },
   { key: "shoes", label: "鞋履", required: false, categories: ["shoes"] },
   { key: "coats", label: "外套", required: false, categories: ["coats"] },
+  { key: "accessories", label: "配饰", required: false, categories: ["accessories"] },
 ];
+
+/** 画布叠放顺序（下 → 上） */
+const CANVAS_LAYER = ["bottoms", "tops", "coats", "shoes", "accessories"];
+
+/** 分类导航（含全部） */
+const CATEGORY_TABS = [
+  { id: "all", label: "全部", categories: null },
+  { id: "tops", label: "上装", categories: ["tops"] },
+  { id: "bottoms", label: "下装", categories: ["pants", "skirts"] },
+  { id: "shoes", label: "鞋子", categories: ["shoes"] },
+  { id: "coats", label: "外套", categories: ["coats"] },
+  { id: "accessories", label: "配饰", categories: ["accessories"] },
+];
+
+function slotKeyForCategory(category) {
+  const hit = SLOT_DEFS.find((s) => s.categories.indexOf(category) >= 0);
+  return hit ? hit.key : null;
+}
 
 function readLocal() {
   try {
@@ -145,6 +164,9 @@ function deleteCustomOutfit(id) {
 
 module.exports = {
   SLOT_DEFS,
+  CANVAS_LAYER,
+  CATEGORY_TABS,
+  slotKeyForCategory,
   listCustomOutfits,
   saveCustomOutfit,
   deleteCustomOutfit,

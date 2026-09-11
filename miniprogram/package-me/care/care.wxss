@@ -1,0 +1,45 @@
+@import "../sub.wxss";
+
+.intro {
+  padding-top: 24rpx;
+}
+
+.h1-like {
+  font-size: 48rpx;
+}
+
+.lead {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  max-width: 90%;
+}
+
+.list {
+  padding: 12rpx 40rpx 8rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.task {
+  padding: 28rpx 24rpx;
+  background: #ffffff;
+  border-left: 8rpx solid #ff6b2c;
+  border-left-color: var(--primary);
+  border-radius: 0 16rpx 16rpx 0;
+}
+
+.task-due {
+  font-size: 22rpx;
+  margin-bottom: 10rpx;
+}
+
+.task-title {
+  font-size: 34rpx;
+  margin-bottom: 8rpx;
+}
+
+.task-detail {
+  font-size: 24rpx;
+  line-height: 1.5;
+}

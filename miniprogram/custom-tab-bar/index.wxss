@@ -12,6 +12,10 @@
   backdrop-filter: blur(20px);
 }
 
+.tabbar-hidden {
+  display: none;
+}
+
 .tab {
   flex: 1;
   display: flex;
@@ -35,14 +39,10 @@
   background: rgba(181, 105, 90, 0.15);
 }
 
-.icon {
-  font-size: 28rpx;
-  color: #8c7b75;
-  line-height: 1;
-}
-
-.on .icon {
-  color: #b5695a;
+.icon-img {
+  width: 40rpx;
+  height: 40rpx;
+  display: block;
 }
 
 .label {

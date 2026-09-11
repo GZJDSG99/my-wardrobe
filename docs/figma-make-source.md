@@ -2,7 +2,8 @@
 
 本小程序 UI 基底来自 Figma Make 社区作品：
 
-- https://www.figma.com/make/OWWTwv81fZtOwkokyXg0ZY/
+- 首页 / 开屏参考：https://www.figma.com/make/rblS5QjMjE8JoevWbbiAtL/
+- 早期视觉壳：https://www.figma.com/make/OWWTwv81fZtOwkokyXg0ZY/
 - 原始社区文件：https://www.figma.com/community/file/1655152426577065372
 
 包含 shadcn/ui（MIT）与 Unsplash 图片素材。业务功能（今日采纳、streak、理由条、柜中/模板、护理与灵感入口等）在此视觉壳上叠加，见 `docs/superpowers/specs/2026-09-10-wechat-wardrobe-prd-design.md`。
@@ -13,7 +14,7 @@
 - 在 `app.js` 中 `wx.cloud.init`
 - 衣物集合：`clothes`（需在云开发控制台手动创建，权限「仅创建者可读写」）
 - 图片路径：云存储 `clothes/`
-- 入库页：`pages/wardrobe/add`
+- 入库页：`package-closet/add/add`
 - 选图接口：`chooseMedia`（若真机报未授权，请在接口权限中开通，并在隐私指引声明「选中的照片或视频文件」）
 
 ## 微信登录

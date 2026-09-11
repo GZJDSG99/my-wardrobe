@@ -1,136 +1,570 @@
-<view class="page">
-  <view class="header section-pad">
-    <view class="header-main">
-      <view class="brand font-display">Dresia</view>
-      <view class="brand-en">Open Your Closet. Discover Your Style.</view>
-      <view class="brand-zh muted">打开衣橱，发现更多风格</view>
-      <view class="page-title">今日穿搭</view>
-      <view class="meta-row">
-        <text class="streak">连续出门 {{streak}} 天</text>
-        <text class="dot">·</text>
-        <text class="muted" bindtap="onGoWardrobe">衣橱 {{realRatio}} 件</text>
+<view class="page page-home {{pageEnter ? 'page-enter' : ''}}">
+  <scroll-view scroll-y class="home-scroll" enhanced show-scrollbar="{{false}}">
+    <view class="home-inner section-pad">
+      <!-- Header -->
+      <view class="home-head">
+        <view class="home-head-left">
+          <view class="date-label">{{dateLabel}}</view>
+          <view class="home-title font-display">Dresia</view>
+          <view class="greet muted">
+            <text>{{greetEmoji}}</text>
+            <text> {{greetText}}</text>
+          </view>
+        </view>
+        <view class="home-head-right">
+          <view wx:if="{{idleCount > 0}}" class="idle-pill" bindtap="onOpenIdle">
+            <view class="idle-hanger">
+              <view class="idle-hanger-hook"></view>
+              <view class="idle-hanger-body"></view>
+              <view class="idle-hanger-bar"></view>
+            </view>
+            <text class="idle-txt">闲置</text>
+            <view class="idle-badge">{{idleCount}}</view>
+          </view>
+          <view class="weather-pill" bindtap="onGoWeather">
+            <text class="weather-ico">☁</text>
+            <text class="weather-txt">{{weatherTip}}</text>
+          </view>
+        </view>
       </view>
-    </view>
-    <view class="header-actions">
-      <view class="icon-btn">🔔</view>
-      <view class="icon-btn">⌕</view>
-    </view>
-  </view>
 
-  <view class="weather-strip section-pad" bindtap="onGoWeather">
-    <view class="weather-left">
-      <text class="sun">☀</text>
-      <text class="weather-main">{{weatherTip}}</text>
-    </view>
-    <text class="weather-hint">{{weatherHint}}</text>
-    <text class="chev">›</text>
-  </view>
+      <!-- Moods -->
+      <view class="sec">
+        <view class="sec-label">今日风格</view>
+        <scroll-view scroll-x class="chip-scroll" enhanced show-scrollbar="{{false}}">
+          <view class="chip-row">
+            <view
+              wx:for="{{moods}}"
+              wx:key="id"
+              class="mood-chip {{item.on ? 'on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="onPickMood"
+            >
+              <text class="mood-emoji">{{item.emoji}}</text>
+              <text>{{item.label}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
 
-  <scroll-view scroll-x class="theme-scroll section-pad" enhanced show-scrollbar="{{false}}">
-    <view class="theme-row">
-      <view
-        wx:for="{{themes}}"
-        wx:key="id"
-        class="theme-chip {{item.on ? 'theme-on' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onPickTheme"
-      >{{item.name}}</view>
+      <!-- Lucky CTA -->
+      <view class="lucky-btn" bindtap="onLuckyTap">
+        <text class="lucky-ico">⇄</text>
+        <text class="lucky-txt">今天帮我搭</text>
+      </view>
+      <view class="lucky-hint muted">{{filterHint}}</view>
+
+      <!-- Outfits -->
+      <view wx:if="{{showLucky}}" class="lucky-block">
+        <view class="sec-row">
+          <view class="sec-label">为你生成搭配</view>
+          <view class="sec-actions">
+            <text class="link" bindtap="onRefreshBatch">换一批</text>
+            <text class="link" bindtap="onCustom">自定义</text>
+          </view>
+        </view>
+
+        <view wx:if="{{loadingRec}}" class="state muted">正在根据衣橱与天气生成…</view>
+
+        <view wx:elif="{{empty}}" class="empty-box">
+          <view class="empty-title font-display">{{emptyTip}}</view>
+          <view class="empty-sub muted">{{emptySub}}</view>
+          <view class="empty-actions">
+            <button wx:if="{{!loggedIn}}" class="empty-btn" bindtap="onGoLogin">去登录</button>
+            <block wx:else>
+              <button class="empty-btn" bindtap="onGoWardrobe">去衣橱添加</button>
+              <button class="empty-btn ghost" bindtap="onCustom">自定义搭配</button>
+            </block>
+          </view>
+        </view>
+
+        <block wx:else>
+          <!-- 主推卡：风格标语 + 完美三合一 -->
+          <view
+            wx:if="{{heroOutfit}}"
+            class="hero-card {{allSelected ? 'hero-perfect' : ''}}"
+            data-id="{{heroOutfit.id}}"
+            bindtap="onOpenDetail"
+          >
+            <view wx:if="{{allSelected}}" class="hero-banner">
+              <view class="hero-banner-left">
+                <text class="hero-leaf">✦</text>
+                <text class="hero-banner-title">完美三合一搭配</text>
+              </view>
+              <view class="hero-banner-tags">
+                <text class="hero-mini-tag">{{moodEmoji}} {{moodLabel}}</text>
+                <text class="hero-mini-tag">{{personaLabel}}</text>
+                <text class="hero-mini-tag">{{sceneEmoji}} {{sceneLabel}}</text>
+              </view>
+            </view>
+
+            <view
+              class="hero-media"
+              style="background: {{heroOutfit.colors[0] || '#EDE5D8'}};"
+            >
+              <image
+                wx:if="{{heroOutfit.image}}"
+                class="hero-img"
+                src="{{heroOutfit.image}}"
+                mode="aspectFill"
+              />
+              <view class="hero-overlay">
+                <view wx:if="{{!allSelected}}" class="hero-mood-pill">
+                  {{moodEmoji}} {{moodLabel}}
+                </view>
+                <view class="hero-phrase font-display">{{moodPhrase}}</view>
+              </view>
+            </view>
+
+            <view class="hero-body">
+              <view class="hero-main">
+                <view class="hero-items">{{heroOutfit.itemsText}}</view>
+                <view class="hero-tip muted">{{heroOutfit.reason}}</view>
+                <view wx:if="{{allSelected && sceneTip}}" class="scene-tip">
+                  <text class="scene-tip-emoji">{{sceneEmoji}}</text>
+                  <view class="scene-tip-copy">
+                    <view class="scene-tip-title">{{sceneLabel}}场合穿搭建议</view>
+                    <view class="scene-tip-text muted">{{sceneTip}}</view>
+                  </view>
+                </view>
+              </view>
+              <view class="hero-side">
+                <view
+                  class="like-btn"
+                  data-id="{{heroOutfit.id}}"
+                  catchtap="onToggleLike"
+                >{{heroOutfit.likeIcon}}</view>
+                <view
+                  class="wear-btn hero-wear"
+                  data-id="{{heroOutfit.id}}"
+                  catchtap="onWear"
+                >{{heroOutfit.wearLabel}}</view>
+              </view>
+            </view>
+          </view>
+
+          <scroll-view scroll-x class="outfit-scroll" enhanced show-scrollbar="{{false}}">
+            <view class="outfit-row">
+              <view
+                wx:for="{{outfits}}"
+                wx:key="id"
+                class="outfit-card"
+                data-id="{{item.id}}"
+                bindtap="onOpenDetail"
+              >
+                <view class="outfit-media" style="background: {{item.colors[0] || '#EDE5D8'}};">
+                  <image
+                    wx:if="{{item.image}}"
+                    class="outfit-img"
+                    src="{{item.image}}"
+                    mode="aspectFill"
+                  />
+                  <view class="outfit-overlay">
+                    <view class="outfit-tag">方案 {{index + 1}}</view>
+                    <view class="outfit-title font-display">{{item.title}}</view>
+                  </view>
+                </view>
+                <view class="outfit-body">
+                  <view class="outfit-items">{{item.itemsText}}</view>
+                  <view class="outfit-tip muted">{{item.reason}}</view>
+                  <view class="outfit-foot">
+                    <view
+                      class="like-btn"
+                      data-id="{{item.id}}"
+                      catchtap="onToggleLike"
+                    >{{item.likeIcon}}</view>
+                    <view
+                      class="wear-btn"
+                      data-id="{{item.id}}"
+                      catchtap="onWear"
+                    >{{item.wearLabel}}</view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </block>
+      </view>
+
+      <!-- Divider -->
+      <view class="petal-div">
+        <view class="line"></view>
+        <view class="petal-dot"></view>
+        <view class="line"></view>
+      </view>
+
+      <!-- Persona -->
+      <view class="sec">
+        <view class="sec-label">我的人设</view>
+        <scroll-view scroll-x class="chip-scroll" enhanced show-scrollbar="{{false}}">
+          <view class="chip-row">
+            <view
+              wx:for="{{personas}}"
+              wx:key="id"
+              class="plain-chip {{item.on ? 'on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="onPickPersona"
+            >{{item.label}}</view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <!-- Scene -->
+      <view class="sec">
+        <view class="sec-label">今日场景</view>
+        <scroll-view scroll-x class="chip-scroll" enhanced show-scrollbar="{{false}}">
+          <view class="chip-row">
+            <view
+              wx:for="{{scenes}}"
+              wx:key="id"
+              class="mood-chip {{item.on ? 'on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="onPickScene"
+            >
+              <text class="mood-emoji">{{item.emoji}}</text>
+              <text>{{item.label}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <!-- DIARY -->
+      <view class="diary-div">
+        <view class="line"></view>
+        <text class="diary-label">DIARY</text>
+        <view class="line"></view>
+      </view>
+
+      <!-- Calendar -->
+      <view class="cal-wrap">
+        <view
+          wx:for="{{calPetals}}"
+          wx:key="id"
+          class="cal-burst-petal"
+          style="left: {{item.left}}px; top: {{item.top}}px; width: {{item.size}}px; height: {{item.size}}px; background: {{item.color}}; --dx: {{item.dx}}px; --pr: {{item.rot}}deg; animation-duration: {{item.dur}}s;"
+        ></view>
+        <view class="cal-card">
+          <view class="cal-head">
+            <view>
+              <view class="sec-label">Outfit Diary</view>
+              <view class="cal-title font-display">穿搭日历</view>
+            </view>
+            <view class="cal-stat">
+              <view class="sec-label">本月记录</view>
+              <view class="cal-count">{{calLogCount}}<text class="cal-unit">天</text></view>
+            </view>
+          </view>
+
+          <view class="cal-nav">
+            <view class="cal-nav-btn" bindtap="onPrevMonth">‹</view>
+            <view class="cal-month font-display">{{calMonthLabel}}</view>
+            <view class="cal-nav-btn" bindtap="onNextMonth">›</view>
+          </view>
+
+          <view class="cal-week">
+            <text wx:for="{{weekdays}}" wx:key="*this" class="cal-wd">{{item}}</text>
+          </view>
+
+          <view class="cal-grid">
+            <block wx:for="{{calCells}}" wx:key="id">
+              <view wx:if="{{item.empty}}" class="cal-slot empty"></view>
+              <view wx:else class="cal-slot">
+                <view
+                  class="cal-day {{item.isToday ? 'today' : ''}} {{selectedDate === item.key ? 'sel' : ''}} {{item.hasLog ? 'has' : ''}}"
+                  data-key="{{item.key}}"
+                  bindtap="onSelectDate"
+                >
+                  <image
+                    wx:if="{{item.thumb}}"
+                    class="cal-day-thumb"
+                    src="{{item.thumb}}"
+                    mode="aspectFill"
+                  />
+                  <view wx:if="{{item.isToday && !item.thumb}}" class="cal-today-glow"></view>
+                  <text class="cal-day-num {{item.thumb ? 'on-thumb' : ''}} {{item.isToday ? 'today-num' : ''}}">{{item.day}}</text>
+                </view>
+                <view
+                  wx:if="{{item.petal}}"
+                  class="cal-petal"
+                  style="background: {{item.petal}};"
+                ></view>
+                <view class="cal-ev-dots">
+                  <view
+                    wx:for="{{item.events}}"
+                    wx:for-item="ev"
+                    wx:for-index="ei"
+                    wx:key="ei"
+                    class="cal-ev-dot"
+                    style="background: {{ev.dot}};"
+                  ></view>
+                </view>
+              </view>
+            </block>
+          </view>
+
+          <view class="cal-legend">
+            <view wx:for="{{eventLegend}}" wx:key="type" class="cal-legend-item">
+              <view class="cal-ev-dot" style="background: {{item.dot}};"></view>
+              <text class="cal-legend-label">{{item.label}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{selectedDate}}" class="cal-panel">
+          <view class="cal-panel-head">
+            <text class="cal-panel-date">{{selectedDate}}</text>
+            <view class="cal-add-btn" bindtap="onOpenAddEvent">＋ 添加提醒</view>
+          </view>
+
+          <view wx:if="{{selectedLog}}" class="cal-panel-log">
+            <image
+              wx:if="{{selectedLog.image}}"
+              class="cal-panel-img"
+              src="{{selectedLog.image}}"
+              mode="aspectFill"
+            />
+            <view wx:else class="cal-panel-img placeholder"></view>
+            <view class="cal-panel-body">
+              <view class="cal-panel-desc">{{selectedLog.desc || selectedLog.title}}</view>
+              <view class="cal-panel-mood">{{selectedLog.mood}}</view>
+            </view>
+          </view>
+
+          <view wx:if="{{selectedEvents.length}}" class="cal-panel-events">
+            <view
+              wx:for="{{selectedEvents}}"
+              wx:key="index"
+              class="cal-chip"
+              style="background: {{item.bg}}; color: {{item.text}};"
+            >{{item.emoji}} {{item.label}}</view>
+          </view>
+
+          <view
+            wx:if="{{!selectedLog && !selectedEvents.length}}"
+            class="cal-panel-empty"
+          >还没有记录，去添加一个提醒吧～</view>
+        </view>
+      </view>
+
+      <!-- Wear frequency -->
+      <view class="freq-sec">
+        <view class="sec-label">穿着频率</view>
+        <view wx:if="{{!wearStats.length}}" class="freq-empty muted">入库衣物后，这里会显示穿着排行</view>
+        <view
+          wx:for="{{wearStats}}"
+          wx:key="id"
+          class="freq-row"
+        >
+          <text class="freq-name">{{item.name}}</text>
+          <view class="freq-meta">
+            <text wx:if="{{item.tag}}" class="freq-tag {{item.tagClass}}">{{item.tag}}</text>
+            <text class="freq-count muted">{{item.count}}次</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="home-bottom-space"></view>
     </view>
   </scroll-view>
 
-  <view wx:if="{{loggedIn}}" class="custom-bar section-pad">
-    <button class="custom-btn" bindtap="onCustom">＋ 自定义搭配</button>
-  </view>
-
-  <view wx:if="{{loadingRec}}" class="muted section-pad" style="padding-top: 8rpx;">正在根据天气与衣橱生成推荐…</view>
-
-  <view wx:elif="{{empty}}" class="empty-rec section-pad">
-    <view class="empty-title font-display">{{emptyTip}}</view>
-    <view class="empty-sub muted">{{emptySub}}</view>
-    <button wx:if="{{!loggedIn}}" class="empty-btn" bindtap="onGoLogin">去登录</button>
-    <view wx:else class="empty-actions">
-      <button class="empty-btn" bindtap="onGoWardrobe">去衣橱添加</button>
-      <button class="empty-btn ghost" bindtap="onCustom">自定义搭配</button>
+  <!-- Detail sheet -->
+  <view wx:if="{{detailShow}}" class="detail-mask" catchtouchmove="noop" bindtap="onCloseDetail">
+    <view class="detail-sheet" catchtap="noop">
+      <view class="detail-handle"></view>
+      <view class="detail-title font-display">{{detail.title}}</view>
+      <view class="detail-reason muted">{{detail.reason}}</view>
+      <view class="detail-items">{{detail.itemsText}}</view>
+      <view class="detail-actions">
+        <button class="detail-like" data-id="{{detail.id}}" bindtap="onToggleLike">
+          {{detail.likeIcon}} 收藏
+        </button>
+        <button class="detail-wear" data-id="{{detail.id}}" bindtap="onWear">
+          {{detail.wearLabel}}
+        </button>
+      </view>
     </view>
   </view>
 
-  <view wx:else class="outfit-list section-pad">
-    <view wx:for="{{outfits}}" wx:key="id" class="outfit card">
-      <view class="cover-wrap">
-        <view class="piece-grid">
-          <view
-            wx:for="{{item.pieces}}"
-            wx:for-item="piece"
-            wx:key="id"
-            class="piece-cell"
-          >
-            <image
-              wx:if="{{piece.image}}"
-              class="piece-img"
-              src="{{piece.image}}"
-              mode="aspectFill"
-              lazy-load
-            />
-            <view
-              wx:else
-              class="piece-img piece-fallback"
-              style="background: {{piece.color}};"
-            ></view>
-            <view class="piece-meta">
-              <text class="piece-slot">{{piece.slot}}</text>
+  <!-- Add calendar event sheet -->
+  <view wx:if="{{showAddEvent}}" class="detail-mask" catchtouchmove="noop" bindtap="onCloseAddEvent">
+    <view class="event-sheet" catchtap="noop">
+      <view class="detail-handle"></view>
+      <view class="event-sheet-title font-display">添加事件提醒</view>
+      <view class="event-sheet-date muted">{{selectedDate}}</view>
+      <view class="event-grid">
+        <view
+          wx:for="{{eventPresets}}"
+          wx:key="type"
+          class="event-opt"
+          style="background: {{item.bg}}; border-color: {{item.dot}};"
+          data-type="{{item.type}}"
+          data-label="{{item.label}}"
+          bindtap="onAddEvent"
+        >
+          <text class="event-opt-emoji">{{item.emoji}}</text>
+          <text class="event-opt-label" style="color: {{item.text}};">{{item.label}}</text>
+        </view>
+      </view>
+      <view class="event-cancel" bindtap="onCloseAddEvent">取消</view>
+    </view>
+  </view>
+
+  <!-- Idle wardrobe browser -->
+  <view wx:if="{{showIdleBrowser}}" class="idle-mask" catchtouchmove="noop">
+    <view class="idle-backdrop" bindtap="onCloseIdle"></view>
+
+    <view class="idle-top">
+      <view>
+        <view class="idle-kicker">Idle Wardrobe</view>
+        <view class="idle-title font-display">闲置管理</view>
+      </view>
+      <view class="idle-close" bindtap="onCloseIdle">✕</view>
+    </view>
+
+    <view class="idle-counter">{{idleCounterText}}</view>
+
+    <view class="idle-stage">
+      <view class="idle-stack">
+        <view
+          wx:for="{{idleStack}}"
+          wx:key="id"
+          class="idle-card {{item.front ? 'front' : ''}}"
+          style="{{item.cardStyle}}"
+        >
+          <view class="idle-card-inner {{item.front ? 'float' : ''}}">
+            <view class="idle-card-media">
+              <image
+                wx:if="{{item.image}}"
+                class="idle-card-img"
+                src="{{item.image}}"
+                mode="aspectFill"
+              />
+              <view wx:else class="idle-card-img placeholder"></view>
+              <view class="idle-card-shade"></view>
+              <view wx:if="{{item.superIdle}}" class="idle-super">很少穿</view>
+              <view class="idle-wear-pill">仅穿{{item.worn}}次</view>
+              <view class="idle-card-name font-display">{{item.name}}</view>
+            </view>
+            <view class="idle-card-foot">
+              <view class="idle-card-meta">
+                <text class="idle-cat">{{item.catLabel}}</text>
+                <view class="idle-color">
+                  <view class="idle-swatch" style="background: {{item.color}};"></view>
+                  <text>{{item.colorName || '色彩'}}</text>
+                </view>
+              </view>
+              <view wx:if="{{item.front}}" class="idle-match-btn" bindtap="onIdleMatch">✦ 一键搭配</view>
             </view>
           </view>
         </view>
-        <view class="cover-mask"></view>
-        <view class="tag-row">
-          <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="img-tag">{{tag}}</text>
-          <text class="img-tag">{{item.realCount}} 件</text>
-        </view>
-        <view class="cover-foot">
-          <view>
-            <view class="sub">{{item.subtitle}}</view>
-            <view class="title font-display">{{item.title}}</view>
-          </view>
-          <view
-            class="like"
-            data-id="{{item.id}}"
-            catchtap="onToggleLike"
-          >{{item.likeIcon}}</view>
-        </view>
-        <view wx:if="{{stamped}}" class="stamp font-display">今天穿这套</view>
+      </view>
+    </view>
+
+    <view class="idle-nav">
+      <view
+        class="idle-nav-btn {{idleActiveIdx === 0 ? 'disabled' : ''}}"
+        bindtap="onIdlePrev"
+      >‹</view>
+      <view class="idle-dots">
+        <view
+          wx:for="{{idleDots}}"
+          wx:key="id"
+          class="idle-dot {{item.on ? 'on' : ''}}"
+          data-idx="{{index}}"
+          bindtap="onIdleDotTap"
+        ></view>
+      </view>
+      <view
+        class="idle-nav-btn {{idleActiveIdx >= idleTotal - 1 ? 'disabled' : ''}}"
+        bindtap="onIdleNext"
+      >›</view>
+    </view>
+
+    <view wx:if="{{idleMatchShow}}" class="idle-match-sheet" catchtap="noop">
+      <view class="idle-match-head">
+        <view class="idle-match-back" bindtap="onIdleMatchBack">‹ 返回</view>
+        <view class="detail-handle"></view>
+        <view class="idle-match-spacer"></view>
       </view>
 
-      <view class="body">
-        <view class="reason">{{item.reason}}</view>
-        <view class="label-muted">搭配单品</view>
-        <view class="piece-list">
-          <view wx:for="{{item.pieces}}" wx:for-item="piece" wx:key="id" class="piece-row">
-            <image
-              wx:if="{{piece.image}}"
-              class="piece-thumb"
-              src="{{piece.image}}"
-              mode="aspectFill"
-            />
-            <view
-              wx:else
-              class="piece-thumb"
-              style="background: {{piece.color}};"
-            ></view>
-            <view class="piece-info">
-              <text class="piece-name">{{piece.name}}</text>
-              <text class="muted piece-slot-sm">{{piece.slot}}</text>
+      <scroll-view scroll-y class="idle-match-body" enhanced show-scrollbar="{{false}}">
+        <view wx:if="{{idleMatchLoading}}" class="idle-loading">
+          <view class="idle-loading-ring"></view>
+          <view class="idle-loading-txt">正在为你生成搭配组合...</view>
+        </view>
+
+        <block wx:elif="{{idleCurrentOutfit}}">
+          <view class="idle-match-meta">
+            <text>{{idleOutfitIdx + 1}} / {{idleOutfits.length}} 套搭配方案</text>
+            <view class="idle-outfit-dots">
+              <view
+                wx:for="{{idleOutfits}}"
+                wx:key="id"
+                class="idle-outfit-dot {{index === idleOutfitIdx ? 'on' : ''}}"
+                data-idx="{{index}}"
+                bindtap="onIdleOutfitDot"
+              ></view>
             </view>
           </view>
-        </view>
-        <view class="body-foot">
-          <text class="muted">{{item.temp}} 适用</text>
-          <button
-            class="wear-btn"
-            data-id="{{item.id}}"
-            bindtap="onWear"
-          >{{item.wearLabel}}</button>
-        </view>
-      </view>
+
+          <view class="idle-outfit-card">
+            <view class="idle-outfit-title font-display">方案 {{idleOutfitIdx + 1}} · 智能推荐</view>
+            <view
+              wx:for="{{idleCurrentOutfit.pieces}}"
+              wx:key="id"
+              class="idle-piece"
+            >
+              <image
+                wx:if="{{item.image}}"
+                class="idle-piece-img"
+                src="{{item.image}}"
+                mode="aspectFill"
+              />
+              <view wx:else class="idle-piece-img placeholder"></view>
+              <view class="idle-piece-body">
+                <view class="idle-piece-name">{{item.name}}</view>
+                <view class="idle-piece-sub">
+                  <text>{{item.catLabel}}</text>
+                  <view class="idle-swatch sm" style="background: {{item.color}};"></view>
+                  <text>{{item.colorName}}</text>
+                </view>
+              </view>
+              <view wx:if="{{item.id === idleSelectedId}}" class="idle-piece-tag">闲置</view>
+            </view>
+
+            <view class="idle-harmony">
+              <text class="idle-harmony-label">色彩和谐</text>
+              <view class="idle-harmony-bar">
+                <view
+                  class="idle-harmony-fill"
+                  style="width: {{idleCurrentOutfit.score}}%; background: {{idleCurrentOutfit.scoreColor}};"
+                ></view>
+              </view>
+              <text
+                class="idle-harmony-score"
+                style="color: {{idleCurrentOutfit.scoreColor}};"
+              >{{idleCurrentOutfit.score}}% · {{idleCurrentOutfit.scoreLabel}}</text>
+            </view>
+
+            <view class="idle-tip">{{idleCurrentOutfit.tip}}</view>
+          </view>
+
+          <view class="idle-match-actions">
+            <view
+              class="idle-nav-btn light {{idleOutfitIdx === 0 ? 'disabled' : ''}}"
+              bindtap="onIdleOutfitPrev"
+            >‹</view>
+            <view class="idle-save" bindtap="onIdleSaveOutfit">保存此套</view>
+            <view class="idle-regen" bindtap="onIdleRegenerate">重新生成</view>
+            <view
+              class="idle-nav-btn light {{idleOutfitIdx >= idleOutfits.length - 1 ? 'disabled' : ''}}"
+              bindtap="onIdleOutfitNext"
+            >›</view>
+          </view>
+        </block>
+
+        <view wx:else class="idle-loading-txt empty">暂时凑不出搭配，再添加几件衣物试试</view>
+      </scroll-view>
     </view>
   </view>
 </view>
